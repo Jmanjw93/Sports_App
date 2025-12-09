@@ -49,8 +49,8 @@ export default function InteractiveBall({
       onClick={handleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      title={`${ballType} - Click to interact!`}
     >
+      <title>{`${ballType} - Click to interact!`}</title>
       {children}
     </svg>
   )
