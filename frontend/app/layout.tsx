@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter, Nunito, Comic_Neue } from 'next/font/google'
+import { Inter, Comfortaa, Merriweather } from 'next/font/google'
 import './globals.css'
 
 const inter = Inter({ 
@@ -8,17 +8,17 @@ const inter = Inter({
   display: 'swap',
 })
 
-const nunito = Nunito({
+const comfortaa = Comfortaa({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
-  variable: '--font-nunito',
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-comfortaa',
   display: 'swap',
 })
 
-const comicNeue = Comic_Neue({
+const merriweather = Merriweather({
   subsets: ['latin'],
-  weight: ['300', '400', '700'],
-  variable: '--font-comic',
+  weight: ['300', '400', '700', '900'],
+  variable: '--font-merriweather',
   display: 'swap',
 })
 
@@ -34,7 +34,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${nunito.variable} ${comicNeue.variable} font-sans antialiased`}>{children}</body>
+      <body className={`${inter.variable} ${comfortaa.variable} ${merriweather.variable} font-sans antialiased`}>{children}</body>
     </html>
   )
 }

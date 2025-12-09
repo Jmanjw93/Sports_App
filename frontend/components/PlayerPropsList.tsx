@@ -81,7 +81,7 @@ export default function PlayerPropsList({ sport }: PlayerPropsListProps) {
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
-        <Loader2 className="animate-spin text-sky-500" size={48} />
+        <Loader2 className="animate-spin text-warm-600" size={48} />
       </div>
     )
   }

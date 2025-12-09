@@ -91,7 +91,7 @@ export default function BestBets({ sport }: BestBetsProps) {
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
-        <Loader2 className="animate-spin text-sky-500" size={48} />
+        <Loader2 className="animate-spin text-gray-900" size={48} />
       </div>
     )
   }
@@ -110,17 +110,17 @@ export default function BestBets({ sport }: BestBetsProps) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-3xl font-heading font-bold text-white tracking-tight drop-shadow-lg">Best Betting Opportunities</h2>
+        <h2 className="text-3xl font-heading font-bold text-gray-900 tracking-tight drop-shadow-lg">Best Betting Opportunities</h2>
         <button
           onClick={fetchBestBets}
-          className="bg-gradient-to-r from-sky-500 to-mint-500 hover:from-sky-600 hover:to-mint-600 text-white px-4 py-2 rounded-lg transition-colors shadow-xl font-bold"
+          className="bg-gradient-to-r from-warm-500 to-amber-500 hover:from-warm-600 hover:to-amber-600 text-white px-4 py-2 rounded-lg transition-colors shadow-xl font-bold"
         >
           Refresh
         </button>
       </div>
 
       {bets.length === 0 ? (
-        <div className="text-center py-12 text-white font-semibold drop-shadow-md">
+        <div className="text-center py-12 text-gray-900 font-semibold drop-shadow-md">
           <Target size={48} className="mx-auto mb-4 opacity-80" />
           <p>No positive EV bets found at this time</p>
           <p className="text-sm mt-2">Check back later for new opportunities</p>
@@ -145,40 +145,40 @@ export default function BestBets({ sport }: BestBetsProps) {
               </div>
 
               <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="bg-mint-100 rounded-lg p-3 border-2 border-mint-400">
-                  <div className="flex items-center text-mint-700 text-xs mb-1 font-semibold">
+                <div className="bg-amber-50 rounded-lg p-3 border-2 border-amber-400">
+                  <div className="flex items-center text-gray-900 text-xs mb-1 font-semibold">
                     <DollarSign size={14} className="mr-1" />
                     Expected Value
                   </div>
-                  <div className="text-2xl font-bold text-mint-600">
+                  <div className="text-2xl font-bold text-gray-900">
                     +{(bet.expected_value * 100).toFixed(1)}%
                   </div>
                 </div>
-                <div className="bg-sky-100 rounded-lg p-3 border-2 border-sky-400">
-                  <div className="flex items-center text-sky-700 text-xs mb-1 font-semibold">
+                <div className="bg-warm-50 rounded-lg p-3 border-2 border-warm-400">
+                  <div className="flex items-center text-gray-900 text-xs mb-1 font-semibold">
                     <TrendingUp size={14} className="mr-1" />
                     Odds
                   </div>
-                  <div className="text-2xl font-bold text-sky-600">{bet.odds.toFixed(2)}</div>
+                  <div className="text-2xl font-bold text-gray-900">{bet.odds.toFixed(2)}</div>
                 </div>
               </div>
 
               <div className="space-y-2 mb-4">
                 <div className="flex justify-between text-sm">
-                  <span className="text-sky-600 font-semibold">True Probability:</span>
-                  <span className="text-mint-600 font-bold">
+                  <span className="text-gray-900 font-semibold">True Probability:</span>
+                  <span className="text-gray-900 font-bold">
                     {(bet.true_probability * 100).toFixed(1)}%
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-sky-600 font-semibold">Implied Probability:</span>
-                  <span className="text-coral-600 font-bold">
+                  <span className="text-gray-900 font-semibold">Implied Probability:</span>
+                  <span className="text-gray-900 font-bold">
                     {(bet.implied_probability * 100).toFixed(1)}%
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-sky-600 font-semibold">Kelly Percentage:</span>
-                  <span className="text-rose-600 font-bold">
+                  <span className="text-gray-900 font-semibold">Kelly Percentage:</span>
+                  <span className="text-gray-900 font-bold">
                     {(bet.kelly_percentage * 100).toFixed(2)}%
                   </span>
                 </div>

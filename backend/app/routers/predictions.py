@@ -5,6 +5,8 @@ from fastapi import APIRouter, HTTPException
 from typing import Optional
 from app.models.prediction_models import GamePredictor, PlayerPropPredictor
 from app.models.weather_analyzer import WeatherAnalyzer
+from app.models.prediction_tracker import PredictionTracker
+from app.models.adaptive_predictor import AdaptivePredictor
 from app.data.sports_data import SportsDataCollector
 from app.data.injury_data import InjuryDataCollector
 
@@ -14,6 +16,8 @@ player_predictor = PlayerPropPredictor()
 weather_analyzer = WeatherAnalyzer()
 data_collector = SportsDataCollector()
 injury_collector = InjuryDataCollector()
+prediction_tracker = PredictionTracker()
+adaptive_predictor = AdaptivePredictor(prediction_tracker)
 
 
 @router.get("/game/{game_id}")
@@ -106,6 +110,14 @@ async def get_game_prediction(game_id: str) -> dict:
         
         # Make prediction
         sport = game.get("sport", "nfl")
+        
+        # Get adaptive weights based on learning
+        adjusted_weights = adaptive_predictor.get_adjusted_weights(sport)
+        
+        # Temporarily update predictor weights (could be refactored to pass as parameters)
+        original_weather_weight = game_predictor.weather_weight
+        game_predictor.weather_weight = adjusted_weights.get("weather", game_predictor.weather_weight)
+        
         prediction = game_predictor.predict_game(
             game["home_team"],
             game["away_team"],
@@ -140,6 +152,13 @@ async def get_game_prediction(game_id: str) -> dict:
             # Recalculate confidence
             prediction.confidence = abs(prediction.home_win_probability - prediction.away_win_probability)
             
+            # Update predicted winner to match final probabilities
+            if prediction.home_win_probability > prediction.away_win_probability:
+                prediction.predicted_winner = prediction.home_team
+            elif prediction.away_win_probability > prediction.home_win_probability:
+                prediction.predicted_winner = prediction.away_team
+            # If equal, keep existing predicted_winner (defaults to home team)
+            
             # Update key factors
             if net_adjustment > 0.02:
                 prediction.key_factors.append(
@@ -150,18 +169,44 @@ async def get_game_prediction(game_id: str) -> dict:
                     f"Away team key players have favorable historical matchups ({abs(net_adjustment)*100:.1f}% advantage)"
                 )
         
+        # Restore original weights
+        game_predictor.weather_weight = original_weather_weight
+        
+        # Adjust confidence based on historical accuracy
+        adjusted_confidence = adaptive_predictor.get_confidence_adjustment(prediction.confidence, sport)
+        prediction.confidence = adjusted_confidence
+        
+        # Final validation: ensure probabilities sum to 1.0 and predicted_winner matches
+        final_home_prob = prediction.home_win_probability
+        final_away_prob = prediction.away_win_probability
+        
+        # Normalize probabilities to sum to 1.0
+        total_prob = final_home_prob + final_away_prob
+        if abs(total_prob - 1.0) > 0.01:
+            final_home_prob = final_home_prob / total_prob
+            final_away_prob = 1.0 - final_home_prob
+        
+        # Ensure predicted_winner matches the team with higher probability
+        if final_home_prob > final_away_prob:
+            final_predicted_winner = prediction.home_team
+        elif final_away_prob > final_home_prob:
+            final_predicted_winner = prediction.away_team
+        else:
+            final_predicted_winner = prediction.predicted_winner  # Keep original if equal
+        
         # Convert to dict for JSON response
         response = {
             "game_id": prediction.game_id,
             "home_team": prediction.home_team,
             "away_team": prediction.away_team,
-            "predicted_winner": prediction.predicted_winner,
-            "home_win_probability": round(prediction.home_win_probability, 3),
-            "away_win_probability": round(prediction.away_win_probability, 3),
-            "confidence": round(prediction.confidence, 3),
+            "predicted_winner": final_predicted_winner,
+            "home_win_probability": round(final_home_prob, 3),
+            "away_win_probability": round(final_away_prob, 3),
+            "confidence": round(abs(final_home_prob - final_away_prob), 3),
             "weather_impact": prediction.weather_impact,
             "injury_impact": prediction.injury_impact,
             "coaching_impact": prediction.coaching_impact,
+            "mental_health_impact": prediction.mental_health_impact,
             "key_factors": prediction.key_factors
         }
         

@@ -22,6 +22,7 @@ class GamePrediction:
     weather_impact: Optional[Dict] = None
     injury_impact: Optional[Dict] = None
     coaching_impact: Optional[Dict] = None
+    mental_health_impact: Optional[Dict] = None
     key_factors: List[str] = None
 
 
@@ -122,6 +123,121 @@ class GamePredictor:
         player_prop_adjustment = None
         # This will be populated if player props are analyzed
         
+        # Adjust for mental health factors
+        mental_health_impact = None
+        try:
+            from app.models.mental_health_analyzer import MentalHealthAnalyzer
+            mental_health_analyzer = MentalHealthAnalyzer()
+            
+            # Get key players for both teams
+            home_key_players = mental_health_analyzer.get_key_players_for_team(home_team, sport)
+            away_key_players = mental_health_analyzer.get_key_players_for_team(away_team, sport)
+            
+            # Mock recent team performance (in production, would fetch from database)
+            home_recent_performance = {
+                "win_streak": random.randint(0, 5),
+                "loss_streak": random.randint(0, 3),
+                "recent_form": random.uniform(0.4, 0.9)
+            }
+            away_recent_performance = {
+                "win_streak": random.randint(0, 5),
+                "loss_streak": random.randint(0, 3),
+                "recent_form": random.uniform(0.4, 0.9)
+            }
+            
+            # Mock team factors (in production, would fetch from database)
+            home_team_factors = {
+                "is_playoff_game": random.random() < 0.2,
+                "playoff_pressure": random.uniform(0.0, 0.8),
+                "coaching_stability": random.choice(["stable", "unstable", "new_coach"]),
+                "media_pressure": random.uniform(0.0, 0.7)
+            }
+            away_team_factors = {
+                "is_playoff_game": random.random() < 0.2,
+                "playoff_pressure": random.uniform(0.0, 0.8),
+                "coaching_stability": random.choice(["stable", "unstable", "new_coach"]),
+                "media_pressure": random.uniform(0.0, 0.7)
+            }
+            
+            # Analyze mental health for both teams
+            home_mental_health = mental_health_analyzer.analyze_team_mental_health(
+                home_team, home_key_players, home_recent_performance, home_team_factors, sport
+            )
+            away_mental_health = mental_health_analyzer.analyze_team_mental_health(
+                away_team, away_key_players, away_recent_performance, away_team_factors, sport
+            )
+            
+            # Calculate net adjustment
+            net_mental_health_adjustment = (
+                home_mental_health.impact_on_win_probability - 
+                away_mental_health.impact_on_win_probability
+            )
+            
+            # Apply adjustment to probabilities
+            home_prob += net_mental_health_adjustment
+            away_prob = 1.0 - home_prob
+            
+            # Ensure probabilities stay in valid range
+            home_prob = max(0.1, min(0.9, home_prob))
+            away_prob = 1.0 - home_prob
+            
+            # Prepare mental health impact data
+            mental_health_impact = {
+                "home_team": {
+                    "overall_score": home_mental_health.overall_score,
+                    "team_chemistry": home_mental_health.team_chemistry,
+                    "morale": home_mental_health.morale,
+                    "pressure_handling": home_mental_health.pressure_handling,
+                    "impact_on_win_probability": home_mental_health.impact_on_win_probability,
+                    "factors": home_mental_health.factors,
+                    "key_players": [
+                        {
+                            "player_name": player.player_name,
+                            "position": player.position,
+                            "overall_score": player.overall_score,
+                            "confidence_level": player.confidence_level,
+                            "stress_level": player.stress_level,
+                            "focus_level": player.focus_level,
+                            "motivation_level": player.motivation_level,
+                            "recent_trend": player.recent_trend,
+                            "factors": player.factors,
+                            "impact_on_performance": player.impact_on_performance
+                        }
+                        for player in home_mental_health.key_players_mental_health
+                    ]
+                },
+                "away_team": {
+                    "overall_score": away_mental_health.overall_score,
+                    "team_chemistry": away_mental_health.team_chemistry,
+                    "morale": away_mental_health.morale,
+                    "pressure_handling": away_mental_health.pressure_handling,
+                    "impact_on_win_probability": away_mental_health.impact_on_win_probability,
+                    "factors": away_mental_health.factors,
+                    "key_players": [
+                        {
+                            "player_name": player.player_name,
+                            "position": player.position,
+                            "overall_score": player.overall_score,
+                            "confidence_level": player.confidence_level,
+                            "stress_level": player.stress_level,
+                            "focus_level": player.focus_level,
+                            "motivation_level": player.motivation_level,
+                            "recent_trend": player.recent_trend,
+                            "factors": player.factors,
+                            "impact_on_performance": player.impact_on_performance
+                        }
+                        for player in away_mental_health.key_players_mental_health
+                    ]
+                },
+                "net_adjustment": round(net_mental_health_adjustment, 3),
+                "summary": self._generate_mental_health_summary(
+                    home_mental_health, away_mental_health, net_mental_health_adjustment
+                )
+            }
+        except Exception as e:
+            # If mental health analysis fails, continue without it
+            print(f"Could not analyze mental health factors: {e}")
+        
         # Adjust for injuries
         injury_adjustment = None
         if home_injuries or away_injuries:
@@ -175,10 +291,31 @@ class GamePredictor:
             }
         
         # Determine winner
-        predicted_winner = home_team if home_prob > away_prob else away_team
+        # Ensure probabilities sum to 1.0 (normalize if needed)
+        total_prob = home_prob + away_prob
+        if abs(total_prob - 1.0) > 0.01:  # Allow small floating point differences
+            home_prob = home_prob / total_prob
+            away_prob = 1.0 - home_prob
+        
+        # Determine predicted winner based on higher probability
+        if home_prob > away_prob:
+            predicted_winner = home_team
+        elif away_prob > home_prob:
+            predicted_winner = away_team
+        else:
+            # If probabilities are equal, default to home team (home advantage)
+            predicted_winner = home_team
         
         # Calculate confidence
         confidence = abs(home_prob - away_prob)
+        
+        # Validate that predicted winner matches higher probability
+        if predicted_winner == home_team and away_prob > home_prob:
+            # Fix contradiction: away has higher prob but home is predicted
+            predicted_winner = away_team
+        elif predicted_winner == away_team and home_prob > away_prob:
+            # Fix contradiction: home has higher prob but away is predicted
+            predicted_winner = home_team
         
         # Key factors
         key_factors = self._identify_key_factors(
@@ -213,6 +350,19 @@ class GamePredictor:
                     f"Away team key players expected to outperform based on historical matchups"
                 )
         
+        # Update key factors with mental health insights
+        if mental_health_impact:
+            net_adj = mental_health_impact.get("net_adjustment", 0.0)
+            if abs(net_adj) > 0.01:
+                if net_adj > 0:
+                    key_factors.append(
+                        f"Home team mental health advantage: {net_adj*100:.1f}% win probability boost"
+                    )
+                else:
+                    key_factors.append(
+                        f"Away team mental health advantage: {abs(net_adj)*100:.1f}% win probability boost"
+                    )
+        
         # Store coaching matchup in a way that can be included in response
         coaching_impact = None
         if coaching_matchup:
@@ -235,6 +385,7 @@ class GamePredictor:
             weather_impact=weather_impact,
             injury_impact=injury_adjustment,
             coaching_impact=coaching_impact,
+            mental_health_impact=mental_health_impact,
             key_factors=key_factors
         )
     
@@ -309,6 +460,30 @@ class GamePredictor:
             "weather_impact": impact_analysis,  # Impact analysis
             "adjustment_factor": adjustment
         }
+    
+    def _generate_mental_health_summary(
+        self,
+        home_mental_health,
+        away_mental_health,
+        net_adjustment: float
+    ) -> str:
+        """Generate a human-readable summary of mental health impact"""
+        home_score = home_mental_health.overall_score
+        away_score = away_mental_health.overall_score
+        
+        if abs(net_adjustment) < 0.01:
+            return "Mental health factors are relatively balanced between teams"
+        
+        if net_adjustment > 0:
+            if home_score > 0.7:
+                return f"Home team has strong mental health ({home_score:.0%} score) with better team chemistry and morale, giving them a {net_adjustment*100:.1f}% advantage"
+            else:
+                return f"Home team has better mental health positioning ({home_score:.0%} vs {away_score:.0%}), providing a {net_adjustment*100:.1f}% win probability boost"
+        else:
+            if away_score > 0.7:
+                return f"Away team has strong mental health ({away_score:.0%} score) with better team chemistry and morale, giving them a {abs(net_adjustment)*100:.1f}% advantage"
+            else:
+                return f"Away team has better mental health positioning ({away_score:.0%} vs {home_score:.0%}), providing a {abs(net_adjustment)*100:.1f}% win probability boost"
     
     def _identify_key_factors(
         self,

@@ -85,7 +85,7 @@ export default function GameList({ sport }: GameListProps) {
   if (loading) {
     return (
       <div>
-        <h2 className="text-3xl font-bold text-white mb-6 drop-shadow-lg">Upcoming Games</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-6 drop-shadow-lg">Upcoming Games</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <GameCardSkeleton key={i} />
@@ -127,24 +127,24 @@ export default function GameList({ sport }: GameListProps) {
   return (
     <div>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-        <h2 className="text-3xl font-heading font-bold text-white tracking-tight drop-shadow-lg">Upcoming Games</h2>
+        <h2 className="text-3xl font-heading font-bold text-gray-900 tracking-tight drop-shadow-lg">Upcoming Games</h2>
         
         {/* Search and Filter */}
         <div className="flex gap-3">
           <div className="relative flex-1 md:w-64">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sky-500" size={18} />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-warm-600" size={18} />
             <input
               type="text"
               placeholder="Search teams or city..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-white border-2 border-sky-300 rounded-lg text-sky-700 placeholder-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2 font-medium shadow-md"
+              className="w-full pl-10 pr-4 py-2 bg-latte-50 border-2 border-warm-300 rounded-lg text-gray-800 placeholder-warm-500 focus:outline-none focus:ring-2 focus:ring-warm-400 focus:ring-offset-2 font-medium shadow-md"
             />
           </div>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as 'date' | 'confidence')}
-            className="px-4 py-2 bg-white border-2 border-mint-300 rounded-lg text-mint-700 focus:outline-none focus:ring-2 focus:ring-mint-400 focus:ring-offset-2 font-semibold shadow-md"
+            className="px-4 py-2 bg-latte-50 border-2 border-amber-300 rounded-lg text-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 font-semibold shadow-md"
           >
             <option value="date">Sort by Date</option>
             <option value="confidence">Sort by Confidence</option>
@@ -153,14 +153,14 @@ export default function GameList({ sport }: GameListProps) {
       </div>
 
       {searchQuery && (
-        <div className="mb-4 text-white text-sm font-semibold drop-shadow-md">
+        <div className="mb-4 text-gray-900 text-sm font-semibold drop-shadow-md">
           Found {filteredAndSortedGames.length} game{filteredAndSortedGames.length !== 1 ? 's' : ''} matching "{searchQuery}"
         </div>
       )}
 
       {sortedWeeks.map((week) => (
         <div key={week} className="mb-8">
-          <h3 className="text-2xl font-heading font-semibold text-sunny-300 mb-4 border-b-4 border-sunny-400 pb-2 tracking-tight drop-shadow-md">
+          <h3 className="text-2xl font-heading font-semibold text-amber-300 mb-4 border-b-4 border-amber-400 pb-2 tracking-tight drop-shadow-md">
             {week}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -171,7 +171,7 @@ export default function GameList({ sport }: GameListProps) {
         </div>
       ))}
       {games.length === 0 && (
-        <div className="text-center py-12 text-white font-semibold drop-shadow-md">
+        <div className="text-center py-12 text-gray-900 font-semibold drop-shadow-md">
           <p>No upcoming games found</p>
         </div>
       )}
