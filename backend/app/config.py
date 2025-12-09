@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     API_PORT: int = 8000
     
     # CORS - Can be comma-separated string or list
+    # In production, this should be set via environment variable
+    # Default allows localhost for development
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
     
     # Betting Platforms
