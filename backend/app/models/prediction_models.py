@@ -1,0 +1,560 @@
+"""
+Prediction models for game outcomes and player props
+"""
+from typing import Dict, List, Optional
+from dataclasses import dataclass
+import numpy as np
+import random
+from datetime import datetime
+from app.models.injury_analyzer import InjuryAnalyzer, TeamInjuryImpact
+
+
+@dataclass
+class GamePrediction:
+    """Game outcome prediction"""
+    game_id: str
+    home_team: str
+    away_team: str
+    predicted_winner: str
+    home_win_probability: float
+    away_win_probability: float
+    confidence: float
+    weather_impact: Optional[Dict] = None
+    injury_impact: Optional[Dict] = None
+    coaching_impact: Optional[Dict] = None
+    key_factors: List[str] = None
+
+
+@dataclass
+class PlayerPropPrediction:
+    """Player prop bet prediction"""
+    player_name: str
+    prop_type: str  # "points", "assists", "rebounds", "yards", "touchdowns", etc.
+    predicted_value: float
+    over_probability: float
+    under_probability: float
+    confidence: float
+    historical_avg: float
+    matchup_factor: float  # How favorable the matchup is
+    historical_matchup_data: Optional[Dict] = None  # Historical vs team/coach data
+
+
+class GamePredictor:
+    """Predicts game outcomes using statistical models"""
+    
+    def __init__(self):
+        self.weather_weight = 0.15  # Weather impact weight
+        self.home_advantage = 0.03  # Home team advantage
+    
+    def predict_game(
+        self,
+        home_team: str,
+        away_team: str,
+        home_stats: Dict,
+        away_stats: Dict,
+        weather_data: Optional[Dict] = None,
+        game_id: str = "",
+        home_injuries: Optional[List] = None,
+        away_injuries: Optional[List] = None,
+        sport: str = "nfl"
+    ) -> GamePrediction:
+        """
+        Predict game outcome
+        
+        Args:
+            home_team: Home team name
+            away_team: Away team name
+            home_stats: Home team statistics
+            away_stats: Away team statistics
+            weather_data: Weather conditions
+            game_id: Unique game identifier
+        
+        Returns:
+            GamePrediction object
+        """
+        # Calculate base win probabilities from team stats
+        home_strength = self._calculate_team_strength(home_stats)
+        away_strength = self._calculate_team_strength(away_stats)
+        
+        # Apply home advantage
+        home_strength += self.home_advantage
+        
+        # Calculate base probabilities
+        total_strength = home_strength + away_strength
+        home_prob = home_strength / total_strength if total_strength > 0 else 0.5
+        away_prob = 1 - home_prob
+        
+        # Adjust for weather if outdoor sport (NFL, MLB)
+        weather_impact = None
+        outdoor_sports = ["nfl", "mlb"]
+        if weather_data and sport.lower() in outdoor_sports:
+            weather_impact = self._apply_weather_adjustment(
+                home_prob, away_prob, weather_data, home_team, away_team
+            )
+            # Ensure weather data is included in the impact response
+            if weather_impact and "weather" not in weather_impact:
+                weather_impact["weather"] = weather_data
+            home_prob = weather_impact.get("adjusted_home_prob", home_prob)
+            away_prob = weather_impact.get("adjusted_away_prob", away_prob)
+        
+        # Adjust for coaching matchup (head coach vs head coach)
+        coaching_matchup = None
+        try:
+            from app.data.historical_matchups import HistoricalMatchupAnalyzer
+            matchup_analyzer = HistoricalMatchupAnalyzer()
+            coaching_matchup = matchup_analyzer.analyze_coaching_matchup(
+                home_team, away_team, sport
+            )
+            
+            # Apply coaching adjustment
+            coaching_adjustment = coaching_matchup.get("adjustment_factor", 0.0)
+            home_prob += coaching_adjustment
+            away_prob = 1.0 - home_prob
+            
+            # Ensure probabilities stay in valid range
+            home_prob = max(0.1, min(0.9, home_prob))
+            away_prob = 1.0 - home_prob
+        except Exception as e:
+            # If coaching analysis fails, continue without it
+            print(f"Could not analyze coaching matchup: {e}")
+        
+        # Adjust for player prop insights (key players expected to over/under perform)
+        player_prop_adjustment = None
+        # This will be populated if player props are analyzed
+        
+        # Adjust for injuries
+        injury_adjustment = None
+        if home_injuries or away_injuries:
+            from app.models.injury_analyzer import InjuryAnalyzer
+            injury_analyzer = InjuryAnalyzer()
+            
+            # Analyze injury impacts
+            home_injury_impact = injury_analyzer.analyze_team_injuries(
+                home_team, home_injuries or [], home_strength
+            )
+            away_injury_impact = injury_analyzer.analyze_team_injuries(
+                away_team, away_injuries or [], away_strength
+            )
+            
+            # Calculate adjusted probabilities
+            injury_adjusted = injury_analyzer.calculate_injury_adjusted_probability(
+                home_prob, home_injury_impact, away_injury_impact
+            )
+            
+            home_prob = injury_adjusted["home_probability"]
+            away_prob = injury_adjusted["away_probability"]
+            
+            injury_adjustment = {
+                "home_injury_impact": home_injury_impact.total_impact,
+                "away_injury_impact": away_injury_impact.total_impact,
+                "adjustment": injury_adjusted["injury_adjustment"],
+                "home_key_injuries": [
+                    {
+                        "player": inj.player_name,
+                        "team": home_team,
+                        "position": inj.position,
+                        "injury": inj.injury_type.code,
+                        "status": inj.status.code
+                    }
+                    for inj in home_injury_impact.key_player_injuries
+                ],
+                "away_key_injuries": [
+                    {
+                        "player": inj.player_name,
+                        "team": away_team,
+                        "position": inj.position,
+                        "injury": inj.injury_type.code,
+                        "status": inj.status.code
+                    }
+                    for inj in away_injury_impact.key_player_injuries
+                ],
+                "impact_descriptions": {
+                    "home": injury_analyzer.get_injury_impact_description(home_injury_impact),
+                    "away": injury_analyzer.get_injury_impact_description(away_injury_impact)
+                }
+            }
+        
+        # Determine winner
+        predicted_winner = home_team if home_prob > away_prob else away_team
+        
+        # Calculate confidence
+        confidence = abs(home_prob - away_prob)
+        
+        # Key factors
+        key_factors = self._identify_key_factors(
+            home_stats, away_stats, weather_data
+        )
+        
+        # Update key factors with injury info
+        if injury_adjustment:
+            if injury_adjustment["home_key_injuries"]:
+                key_factors.append(
+                    f"Home team injuries: {len(injury_adjustment['home_key_injuries'])} key players affected"
+                )
+            if injury_adjustment["away_key_injuries"]:
+                key_factors.append(
+                    f"Away team injuries: {len(injury_adjustment['away_key_injuries'])} key players affected"
+                )
+        
+        # Update key factors with coaching matchup
+        if coaching_matchup:
+            key_insight = coaching_matchup.get("key_insight", "")
+            if key_insight:
+                key_factors.append(f"Coaching Matchup: {key_insight}")
+        
+        # Update key factors with player prop insights
+        if player_prop_adjustment:
+            if player_prop_adjustment.get("home_advantage"):
+                key_factors.append(
+                    f"Home team key players expected to outperform based on historical matchups"
+                )
+            if player_prop_adjustment.get("away_advantage"):
+                key_factors.append(
+                    f"Away team key players expected to outperform based on historical matchups"
+                )
+        
+        # Store coaching matchup in a way that can be included in response
+        coaching_impact = None
+        if coaching_matchup:
+            coaching_impact = {
+                "home_coach": coaching_matchup.get("home_coach"),
+                "away_coach": coaching_matchup.get("away_coach"),
+                "adjustment_factor": coaching_matchup.get("adjustment_factor"),
+                "historical_record": coaching_matchup.get("historical_record"),
+                "key_insight": coaching_matchup.get("key_insight")
+            }
+        
+        return GamePrediction(
+            game_id=game_id,
+            home_team=home_team,
+            away_team=away_team,
+            predicted_winner=predicted_winner,
+            home_win_probability=home_prob,
+            away_win_probability=away_prob,
+            confidence=confidence,
+            weather_impact=weather_impact,
+            injury_impact=injury_adjustment,
+            coaching_impact=coaching_impact,
+            key_factors=key_factors
+        )
+    
+    def _calculate_team_strength(self, stats: Dict) -> float:
+        """Calculate overall team strength from statistics"""
+        # Weighted combination of key metrics
+        win_rate = stats.get("win_rate", 0.5)
+        points_per_game = stats.get("points_per_game", 0)
+        points_allowed = stats.get("points_allowed_per_game", 0)
+        recent_form = stats.get("recent_form", 0.5)  # Last 5-10 games
+        
+        # Normalize and combine
+        strength = (
+            win_rate * 0.4 +
+            (points_per_game / 100) * 0.3 +
+            (1 - points_allowed / 100) * 0.2 +
+            recent_form * 0.1
+        )
+        
+        return max(0.1, min(0.9, strength))  # Clamp between 0.1 and 0.9
+    
+    def _apply_weather_adjustment(
+        self,
+        home_prob: float,
+        away_prob: float,
+        weather: Dict,
+        home_team: str,
+        away_team: str
+    ) -> Dict:
+        """Adjust probabilities based on weather conditions"""
+        impact = {
+            "temperature": weather.get("temp", 70),
+            "wind_speed": weather.get("wind_speed", 0),
+            "precipitation": weather.get("precipitation", 0),
+            "conditions": weather.get("conditions", "clear")
+        }
+        
+        adjustment = 0.0
+        
+        # Extreme cold (< 32F) favors running teams
+        if impact["temperature"] < 32:
+            adjustment = -0.05  # Slight advantage to better running team
+        
+        # High wind (> 20 mph) hurts passing
+        if impact["wind_speed"] > 20:
+            adjustment = -0.08
+        
+        # Precipitation hurts passing and favors ground game
+        if impact["precipitation"] > 0:
+            adjustment -= 0.10
+        
+        # Apply adjustment (simplified - would need team play style data)
+        adjusted_home_prob = home_prob + adjustment
+        adjusted_away_prob = 1 - adjusted_home_prob
+        
+        # Normalize
+        total = adjusted_home_prob + adjusted_away_prob
+        adjusted_home_prob /= total
+        adjusted_away_prob /= total
+        
+        # Get weather analysis
+        from app.models.weather_analyzer import WeatherAnalyzer
+        weather_analyzer = WeatherAnalyzer()
+        impact_analysis = weather_analyzer.analyze_weather_impact(weather, "football")
+        
+        return {
+            "original_home_prob": home_prob,
+            "original_away_prob": away_prob,
+            "adjusted_home_prob": adjusted_home_prob,
+            "adjusted_away_prob": adjusted_away_prob,
+            "weather": weather,  # Full weather data
+            "weather_impact": impact_analysis,  # Impact analysis
+            "adjustment_factor": adjustment
+        }
+    
+    def _identify_key_factors(
+        self,
+        home_stats: Dict,
+        away_stats: Dict,
+        weather: Optional[Dict]
+    ) -> List[str]:
+        """Identify key factors affecting the game"""
+        factors = []
+        
+        if home_stats.get("win_rate", 0) > away_stats.get("win_rate", 0) + 0.2:
+            factors.append("Home team has significantly better record")
+        
+        if weather and weather.get("wind_speed", 0) > 20:
+            factors.append("High wind conditions may affect passing game")
+        
+        if weather and weather.get("precipitation", 0) > 0:
+            factors.append("Precipitation expected - ground game advantage")
+        
+        return factors
+    
+    def analyze_player_props_for_game(
+        self,
+        home_team: str,
+        away_team: str,
+        home_player_props: List[Dict],
+        away_player_props: List[Dict]
+    ) -> Dict:
+        """
+        Analyze player props to adjust game win probabilities
+        
+        Args:
+            home_team: Home team name
+            away_team: Away team name
+            home_player_props: List of home team player props
+            away_player_props: List of away team player props
+        
+        Returns:
+            Dictionary with adjustment factors
+        """
+        # Analyze key players (QB, top RB, top WR)
+        home_advantage = 0.0
+        away_advantage = 0.0
+        
+        # Weight by position importance
+        position_weights = {
+            "QB": 0.40,
+            "RB": 0.25,
+            "WR": 0.20,
+            "TE": 0.15
+        }
+        
+        # Analyze home team props
+        for prop in home_player_props:
+            position = prop.get("position", "")
+            weight = position_weights.get(position, 0.10)
+            
+            # If player is expected to significantly overperform based on historical matchups
+            if "historical_matchup" in prop:
+                matchup_factor = prop["historical_matchup"].get("total_adjustment", 0.0)
+                # Positive adjustment means player performs better than average
+                if matchup_factor > 0.05:  # 5% better
+                    home_advantage += weight * min(matchup_factor * 2, 0.10)  # Cap at 10% per player
+                elif matchup_factor < -0.05:  # 5% worse
+                    home_advantage -= weight * min(abs(matchup_factor) * 2, 0.10)
+            
+            # Also consider over probability for key props (yards)
+            if prop.get("prop_type") in ["passing_yards", "rushing_yards", "receiving_yards"]:
+                over_prob = prop.get("over_probability", 0.5)
+                if over_prob > 0.65:  # Strong over probability
+                    home_advantage += weight * (over_prob - 0.5) * 0.05
+                elif over_prob < 0.35:  # Strong under probability
+                    home_advantage -= weight * (0.5 - over_prob) * 0.05
+        
+        # Analyze away team props
+        for prop in away_player_props:
+            position = prop.get("position", "")
+            weight = position_weights.get(position, 0.10)
+            
+            if "historical_matchup" in prop:
+                matchup_factor = prop["historical_matchup"].get("total_adjustment", 0.0)
+                if matchup_factor > 0.05:
+                    away_advantage += weight * min(matchup_factor * 2, 0.10)
+                elif matchup_factor < -0.05:
+                    away_advantage -= weight * min(abs(matchup_factor) * 2, 0.10)
+            
+            if prop.get("prop_type") in ["passing_yards", "rushing_yards", "receiving_yards"]:
+                over_prob = prop.get("over_probability", 0.5)
+                if over_prob > 0.65:
+                    away_advantage += weight * (over_prob - 0.5) * 0.05
+                elif over_prob < 0.35:
+                    away_advantage -= weight * (0.5 - over_prob) * 0.05
+        
+        # Net adjustment (relative advantage)
+        net_adjustment = home_advantage - away_advantage
+        
+        # Cap the adjustment to prevent over-weighting
+        net_adjustment = max(-0.08, min(0.08, net_adjustment))  # Max 8% swing
+        
+        return {
+            "home_advantage": round(home_advantage, 3),
+            "away_advantage": round(away_advantage, 3),
+            "net_adjustment": round(net_adjustment, 3),
+            "adjustment_applied": True
+        }
+
+
+class PlayerPropPredictor:
+    """Predicts player prop bet outcomes"""
+    
+    def predict_player_prop(
+        self,
+        player_name: str,
+        prop_type: str,
+        player_stats: Dict,
+        opponent_stats: Dict,
+        historical_avg: float,
+        line: Optional[float] = None,
+        position: Optional[str] = None,
+        opponent_team: Optional[str] = None,
+        opponent_coach: Optional[str] = None
+    ) -> PlayerPropPrediction:
+        """
+        Predict player prop outcome
+        
+        Args:
+            player_name: Player name
+            prop_type: Type of prop (points, assists, etc.)
+            player_stats: Player's recent statistics
+            opponent_stats: Opponent's defensive statistics
+            historical_avg: Player's historical average
+            line: Betting line (over/under)
+            opponent_team: Opponent team name (for historical matchup)
+            opponent_coach: Opponent coach name (for historical matchup)
+        
+        Returns:
+            PlayerPropPrediction object
+        """
+        # Calculate base matchup factor
+        matchup_factor = self._calculate_matchup_factor(
+            player_stats, opponent_stats, prop_type
+        )
+        
+        # Predict base value
+        base_prediction = player_stats.get(f"{prop_type}_avg", historical_avg)
+        
+        # Apply historical matchup adjustments if available
+        historical_matchup_data = None
+        if opponent_team and opponent_coach:
+            from app.data.historical_matchups import HistoricalMatchupAnalyzer
+            matchup_analyzer = HistoricalMatchupAnalyzer()
+            
+            matchup_adjustment = matchup_analyzer.calculate_matchup_adjustment(
+                player_name, opponent_team, opponent_coach, prop_type, base_prediction
+            )
+            
+            # Use adjusted prediction
+            predicted_value = matchup_adjustment["adjusted_prediction"]
+            historical_matchup_data = matchup_adjustment
+            
+            # Boost confidence if we have historical data
+            confidence_boost = matchup_adjustment.get("confidence_boost", 0.0)
+        else:
+            predicted_value = base_prediction * matchup_factor
+        
+        # Calculate probabilities if line provided
+        if line:
+            # If we have historical over rate, use it to adjust probability
+            if historical_matchup_data:
+                historical_over_rate = (
+                    historical_matchup_data.get("team_over_rate", 0.5) * 0.6 +
+                    historical_matchup_data.get("coach_over_rate", 0.5) * 0.4
+                )
+                # Blend historical rate with calculated probability
+                calculated_over_prob = self._calculate_over_probability(predicted_value, line)
+                over_prob = (calculated_over_prob * 0.7) + (historical_over_rate * 0.3)
+            else:
+                over_prob = self._calculate_over_probability(predicted_value, line)
+            under_prob = 1 - over_prob
+        else:
+            over_prob = 0.5
+            under_prob = 0.5
+        
+        # Confidence based on consistency and historical data
+        consistency = player_stats.get("consistency", 0.7)
+        base_confidence = min(0.95, consistency * 0.9)
+        
+        if historical_matchup_data:
+            confidence_boost = historical_matchup_data.get("confidence_boost", 0.0)
+            confidence = min(0.95, base_confidence + confidence_boost)
+        else:
+            confidence = base_confidence
+        
+        return PlayerPropPrediction(
+            player_name=player_name,
+            prop_type=prop_type,
+            predicted_value=predicted_value,
+            over_probability=over_prob,
+            under_probability=under_prob,
+            confidence=confidence,
+            historical_avg=historical_avg,
+            matchup_factor=matchup_factor,
+            historical_matchup_data=historical_matchup_data
+        )
+    
+    def _calculate_matchup_factor(
+        self,
+        player_stats: Dict,
+        opponent_stats: Dict,
+        prop_type: str
+    ) -> float:
+        """Calculate how favorable the matchup is"""
+        # Get opponent's defensive rating for this prop type
+        opponent_defense = opponent_stats.get(f"defense_vs_{prop_type}", 0.5)
+        
+        # Factor: 1.0 = neutral, >1.0 = favorable, <1.0 = unfavorable
+        matchup_factor = 1.0 + (0.5 - opponent_defense) * 0.3
+        
+        return max(0.7, min(1.3, matchup_factor))  # Clamp between 0.7 and 1.3
+    
+    def _calculate_over_probability(
+        self,
+        predicted_value: float,
+        line: float
+    ) -> float:
+        """Calculate probability of going over the line"""
+        # Use normal distribution approximation
+        std_dev = predicted_value * 0.15  # Assume 15% standard deviation
+        
+        if std_dev == 0:
+            return 0.5
+        
+        # Z-score
+        z = (line - predicted_value) / std_dev
+        
+        # Convert to probability (simplified)
+        if z < -2:
+            return 0.95
+        elif z < -1:
+            return 0.80
+        elif z < 0:
+            return 0.65
+        elif z < 1:
+            return 0.35
+        elif z < 2:
+            return 0.20
+        else:
+            return 0.05
+
