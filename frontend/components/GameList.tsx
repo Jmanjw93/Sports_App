@@ -48,7 +48,7 @@ export default function GameList({ sport }: GameListProps) {
       setGames(response.data || [])
     } catch (err: any) {
       const errorMessage = err.code === 'ECONNABORTED' 
-        ? 'Backend server is not responding. Please check if the backend is running on port 8001.'
+        ? `Backend server is not responding. API URL: ${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}. Please check your backend configuration.`
         : err.response?.data?.detail || err.message || 'Failed to fetch games'
       setError(errorMessage)
       console.error('Error fetching games:', err)
