@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import axios from 'axios'
-import { Calendar, MapPin, TrendingUp, Cloud, ChevronDown, ChevronUp, Trophy, Loader2, Lock, LockOpen } from 'lucide-react'
+import { Calendar, MapPin, TrendingUp, Cloud, ChevronDown, ChevronUp, Trophy, Loader2, Lock, Unlock } from 'lucide-react'
 import ConfidenceBar from './ConfidenceBar'
 import GameSimulator from './GameSimulator'
 
@@ -778,7 +778,7 @@ export default function GameCard({ game }: { game: Game }) {
             className="bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 shadow-xl shadow-green-400/50 cursor-default"
             title="This prediction is locked"
           >
-            <LockOpen size={16} />
+            <Unlock size={16} />
             Locked
           </button>
         )}
