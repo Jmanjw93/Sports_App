@@ -43,7 +43,7 @@ export default function GameList({ sport }: GameListProps) {
       setError(null)
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/api/games/`, {
         params: { sport, days_ahead: 7 },
-        timeout: 10000 // 10 second timeout
+        timeout: 60000 // 60 second timeout (for Render free tier wake-up)
       })
       setGames(response.data || [])
     } catch (err: any) {
