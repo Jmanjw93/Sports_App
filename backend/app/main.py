@@ -3,6 +3,10 @@ Main FastAPI application for Sports Analytics & Betting Predictions
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
+import re
 
 app = FastAPI(
     title="Sports Analytics API",
@@ -10,19 +14,57 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Allowed frontends
-origins = [
-    "https://sports-7t1fi3av-jmanjw93s-projects.vercel.app",  # Vercel production
-    "http://localhost:3000",                                  # local dev (optional)
+# Allowed frontends - includes production and preview Vercel URLs
+# Vercel preview deployments have dynamic URLs, so we use a custom middleware
+allowed_origins = [
+    "https://sports-app-taupe.vercel.app",  # Vercel production
+    "https://sports-app-git-main-jmanjw93s-projects.vercel.app",  # Vercel production branch
+    "https://sports-7t1fi3av-jmanjw93s-projects.vercel.app",  # Vercel preview
+    "https://sports-2rrf7xil8-jmanjw93s-projects.vercel.app",  # Vercel preview
+    "http://localhost:3000",  # local dev
+    "http://localhost:3001",  # local dev
 ]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+def is_allowed_origin(origin: str) -> bool:
+    """Check if origin is allowed, including any Vercel preview deployment"""
+    if not origin:
+        return False
+    # Allow localhost for development
+    if origin.startswith("http://localhost"):
+        return True
+    # Allow any Vercel deployment (production or preview) - matches *.vercel.app
+    if re.match(r"^https://.*\.vercel\.app$", origin):
+        return True
+    # Check explicit allowed origins
+    return origin in allowed_origins
+
+# Custom CORS middleware that supports pattern matching for Vercel preview URLs
+class FlexibleCORSMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        origin = request.headers.get("origin")
+        
+        # Handle preflight OPTIONS requests
+        if request.method == "OPTIONS":
+            response = Response()
+            if origin and is_allowed_origin(origin):
+                response.headers["Access-Control-Allow-Origin"] = origin
+                response.headers["Access-Control-Allow-Credentials"] = "true"
+                response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+                response.headers["Access-Control-Allow-Headers"] = "*"
+                response.headers["Access-Control-Max-Age"] = "3600"
+            return response
+        
+        # Handle actual requests
+        response = await call_next(request)
+        
+        if origin and is_allowed_origin(origin):
+            response.headers["Access-Control-Allow-Origin"] = origin
+            response.headers["Access-Control-Allow-Credentials"] = "true"
+        
+        return response
+
+# Add the custom CORS middleware
+app.add_middleware(FlexibleCORSMiddleware)
 
 # make sure this is ABOVE your router includes
 from app.routers import games, predictions, odds, bets, player_props, simulations, parlays, learning
@@ -55,4 +97,3 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
-
