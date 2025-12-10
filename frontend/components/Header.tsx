@@ -16,6 +16,7 @@ export default function Header({ sport, setSport }: HeaderProps) {
             <Trophy className="text-amber-200" size={32} />
             <div>
               <h1 className="text-2xl font-display font-bold text-white tracking-tight drop-shadow-lg">Mental MQW</h1>
+              {/* Updated branding to Mental MQW */}
               <p className="text-sm font-sans text-white/95">Professional Betting Predictions</p>
             </div>
           </div>
