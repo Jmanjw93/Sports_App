@@ -510,8 +510,10 @@ class HistoricalMatchupAnalyzer:
         Returns:
             Dictionary with historical matchup statistics
         """
-        # Create deterministic seed based on coach names
-        seed = hash(f"{home_coach}_{away_coach}") % 1000
+        # Create deterministic seed based on coach names using a consistent hash
+        # Use a simple hash function that's deterministic across Python versions
+        coach_str = f"{home_coach}_{away_coach}_{sport}"
+        seed = sum(ord(c) * (i + 1) for i, c in enumerate(coach_str)) % 10000
         random.seed(seed)
         
         # Simulate historical matchups between these coaches
@@ -526,6 +528,8 @@ class HistoricalMatchupAnalyzer:
         # This creates realistic patterns where some coaches match up better
         home_advantage_factor = random.uniform(0.40, 0.60)  # Home coach win rate
         
+        # Generate deterministic game dates (going backwards from a fixed date)
+        base_year = 2024
         for i in range(num_games):
             # Simulate game outcome
             if random.random() < home_advantage_factor:
@@ -535,12 +539,26 @@ class HistoricalMatchupAnalyzer:
                 away_wins += 1
                 winner = "away"
             
+            # Generate deterministic dates - use seed + game index for consistency
+            game_seed = (seed + i * 100) % 10000
+            random.seed(game_seed)
+            year_offset = random.randint(0, 2)  # 0-2 years ago
+            month = random.randint(9, 12)  # Sep-Dec (football season)
+            day = random.randint(1, 28)
+            game_year = base_year - year_offset
+            
+            # Reset seed for next iteration
+            random.seed(seed + (i + 1))
+            
             games.append({
-                "game_date": f"202{random.randint(0, 4)}-{random.randint(9, 12):02d}-{random.randint(1, 28):02d}",
+                "game_date": f"{game_year}-{month:02d}-{day:02d}",
                 "home_score": random.randint(17, 35),
                 "away_score": random.randint(17, 35),
                 "winner": winner
             })
+        
+        # Reset seed to original for any remaining operations
+        random.seed(seed)
         
         # Use Bayesian win rates (better for small sample sizes)
         home_win_rate, home_lower, home_upper = StatisticalUtils.bayesian_win_rate(
@@ -950,8 +968,9 @@ class HistoricalMatchupAnalyzer:
         Returns:
             Dictionary with historical player vs player statistics
         """
-        # Create deterministic seed
-        seed = hash(f"{player1_name}_{player2_name}_{sport}") % 1000
+        # Create deterministic seed using consistent hash
+        coach_str = f"{player1_name}_{player2_name}_{sport}"
+        seed = sum(ord(c) * (i + 1) for i, c in enumerate(coach_str)) % 10000
         random.seed(seed)
         
         # Simulate professional matchups
@@ -1100,8 +1119,9 @@ class HistoricalMatchupAnalyzer:
         Returns:
             Dictionary with player facts, achievements, and background
         """
-        # Create deterministic seed
-        seed = hash(f"{player_name}_{sport}") % 1000
+        # Create deterministic seed using consistent hash
+        coach_str = f"{player_name}_{sport}"
+        seed = sum(ord(c) * (i + 1) for i, c in enumerate(coach_str)) % 10000
         random.seed(seed)
         
         # Generate realistic player facts based on name and sport
