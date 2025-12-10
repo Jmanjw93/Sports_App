@@ -4,6 +4,7 @@ API routes for player comparison with historical matchups
 from fastapi import APIRouter, HTTPException
 from typing import Optional
 from app.data.historical_matchups import HistoricalMatchupAnalyzer
+from app.data.nfl_players import get_all_nfl_players, search_players, get_players_by_type
 
 router = APIRouter()
 
@@ -101,6 +102,49 @@ async def get_matchup_history(
             player1, player2, sport, include_college
         )
         return history
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/players")
+async def get_players(
+    sport: str = "nfl",
+    player_type: str = "all",
+    search: Optional[str] = None
+) -> dict:
+    """
+    Get all players for a sport, optionally filtered by type and search query
+    
+    Args:
+        sport: Sport type (currently supports nfl)
+        player_type: "offense", "defense", or "all"
+        search: Optional search query to filter by name or team
+    
+    Returns:
+        List of players matching criteria
+    """
+    try:
+        if sport == "nfl":
+            if search:
+                players = search_players(search, player_type)
+            else:
+                players = get_players_by_type(player_type)
+            
+            return {
+                "players": players,
+                "total": len(players),
+                "sport": sport,
+                "player_type": player_type
+            }
+        else:
+            # For other sports, return empty for now
+            return {
+                "players": [],
+                "total": 0,
+                "sport": sport,
+                "player_type": player_type,
+                "message": f"Player database for {sport} coming soon"
+            }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
