@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     # CORS - Can be comma-separated string or list
     # In production, this should be set via environment variable
     # Default allows localhost for development
+    # Use "*" to allow all origins (for testing/debugging)
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
     
     # Betting Platforms
@@ -31,7 +32,11 @@ class Settings(BaseSettings):
     def cors_origins_list(self) -> List[str]:
         """Convert CORS_ORIGINS string to list"""
         if isinstance(self.CORS_ORIGINS, str):
-            return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
+            origins = [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
+            # If "*" is in the list, return ["*"] to allow all origins
+            if "*" in origins:
+                return ["*"]
+            return origins
         return self.CORS_ORIGINS
     
     class Config:
