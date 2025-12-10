@@ -128,7 +128,16 @@ interface Prediction {
       home_coach_record?: string
       away_coach_record?: string
       home_coach_win_rate: number
+      home_coach_win_rate_ci_lower?: number
+      home_coach_win_rate_ci_upper?: number
       away_coach_win_rate: number
+      away_coach_win_rate_ci_lower?: number
+      away_coach_win_rate_ci_upper?: number
+      avg_point_differential: number
+      robust_avg_point_differential?: number
+      point_differential_std?: number
+      point_differential_ci_lower?: number
+      point_differential_ci_upper?: number
       current_streak?: {
         coach: string
         length: number
