@@ -240,3 +240,4 @@ class LearningAnalyzer:
         }
         return descriptions.get(pattern, f"Pattern: {pattern}")
 
+

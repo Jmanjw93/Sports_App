@@ -150,3 +150,4 @@ class InjuryDataCollector:
             "performance_after_return": random.uniform(0.85, 0.95)  # % of normal
         }
 
+

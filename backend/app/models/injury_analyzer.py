@@ -260,3 +260,4 @@ class InjuryAnalyzer:
             "away_injury_impact": away_injuries.total_impact
         }
 
+

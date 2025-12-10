@@ -84,3 +84,4 @@ Once backend is running, test the API:
 - Make sure `.env` is in `C:\Users\wyetw\sports-analytics-app\` (project root)
 - Not in the backend folder!
 
+

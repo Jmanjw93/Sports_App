@@ -131,3 +131,4 @@ Visit your Vercel frontend URL (e.g., `https://sports-app-taupe.vercel.app`)
 
 **Follow these steps and your app will be fully connected! 🚀**
 
+

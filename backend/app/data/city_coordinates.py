@@ -93,3 +93,4 @@ def get_city_coordinates(city: str, state: Optional[str] = None) -> Optional[Tup
     
     return None
 
+

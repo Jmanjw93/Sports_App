@@ -171,3 +171,4 @@ Potential improvements:
 - Mental health scores are normalized (0.0 to 1.0)
 - Impact adjustments are conservative to avoid over-weighting psychological factors
 
+

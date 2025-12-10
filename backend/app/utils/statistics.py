@@ -417,3 +417,4 @@ class StatisticalUtils:
         
         return (sum_weights ** 2) / sum_squared_weights
 
+

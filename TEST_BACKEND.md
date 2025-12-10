@@ -124,3 +124,4 @@ This should return a list of games (or an empty array if no games).
 
 Test the **backend URL** for the health endpoint!
 
+

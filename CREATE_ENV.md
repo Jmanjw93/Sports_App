@@ -36,3 +36,4 @@ Your API key has been tested and is **valid** ✅
 
 The application will now use real weather data from OpenWeatherMap when making predictions!
 
+

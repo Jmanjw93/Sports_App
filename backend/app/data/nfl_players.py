@@ -497,3 +497,4 @@ def search_players(query: str, player_type: str = "all") -> List[Dict]:
         if query_lower in p["name"].lower() or query_lower in p["team"].lower()
     ]
 
+
