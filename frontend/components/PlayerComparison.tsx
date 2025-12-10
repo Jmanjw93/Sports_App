@@ -76,15 +76,11 @@ export default function PlayerComparison({ sport = 'nfl' }: PlayerComparisonProp
   const [comparisonData, setComparisonData] = useState<ComparisonData | null>(null)
   const [loadingComparison, setLoadingComparison] = useState(false)
   const [showHistorical, setShowHistorical] = useState(false)
+  const [allPlayers, setAllPlayers] = useState<Player[]>([])
+  const [loadingPlayers, setLoadingPlayers] = useState(false)
 
+  // Fallback mock players for non-NFL sports
   const mockPlayers: { [key: string]: Player[] } = {
-    nfl: [
-      { name: 'Patrick Mahomes', team: 'Kansas City Chiefs', position: 'QB', stats: { yards_per_game: 285, touchdowns: 2.1 } },
-      { name: 'Josh Allen', team: 'Buffalo Bills', position: 'QB', stats: { yards_per_game: 275, touchdowns: 2.3 } },
-      { name: 'Lamar Jackson', team: 'Baltimore Ravens', position: 'QB', stats: { yards_per_game: 240, touchdowns: 1.8 } },
-      { name: 'Travis Kelce', team: 'Kansas City Chiefs', position: 'TE', stats: { yards_per_game: 75, touchdowns: 0.8 } },
-      { name: 'Tyreek Hill', team: 'Miami Dolphins', position: 'WR', stats: { yards_per_game: 95, touchdowns: 0.9 } },
-    ],
     nba: [
       { name: 'LeBron James', team: 'Los Angeles Lakers', position: 'SF', stats: { points_per_game: 25.5, assists_per_game: 7.2, rebounds_per_game: 8.1 } },
       { name: 'Stephen Curry', team: 'Golden State Warriors', position: 'PG', stats: { points_per_game: 26.4, assists_per_game: 5.1, rebounds_per_game: 4.5 } },
@@ -101,13 +97,71 @@ export default function PlayerComparison({ sport = 'nfl' }: PlayerComparisonProp
     ]
   }
 
+  // Fetch all NFL players from API
+  useEffect(() => {
+    const fetchPlayers = async () => {
+      if (sport === 'nfl') {
+        try {
+          setLoadingPlayers(true)
+          const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/api/player-comparison/players`,
+            {
+              params: {
+                sport: 'nfl',
+                player_type: 'all'
+              }
+            }
+          )
+          // Convert API response to Player format
+          const players: Player[] = response.data.players.map((p: any) => ({
+            name: p.name,
+            team: p.team,
+            position: p.position,
+            stats: p.stats || {}
+          }))
+          setAllPlayers(players)
+        } catch (err) {
+          console.error('Error fetching players:', err)
+          // Fallback to empty array if API fails
+          setAllPlayers([])
+        } finally {
+          setLoadingPlayers(false)
+        }
+      }
+    }
+    fetchPlayers()
+  }, [sport])
+
   const searchPlayers = (query: string) => {
-    if (!query) return []
-    const players = mockPlayers[sport] || []
-    return players.filter(p => 
-      p.name.toLowerCase().includes(query.toLowerCase()) ||
-      p.team.toLowerCase().includes(query.toLowerCase())
+    if (!query || query.trim().length === 0) return []
+    
+    const players = sport === 'nfl' ? allPlayers : (mockPlayers[sport] || [])
+    const queryLower = query.toLowerCase().trim()
+    
+    // Prioritize exact name matches, then partial matches
+    const exactMatches = players.filter(p => 
+      p.name.toLowerCase() === queryLower
     )
+    
+    const nameStartsWith = players.filter(p => 
+      p.name.toLowerCase().startsWith(queryLower) && 
+      !exactMatches.includes(p)
+    )
+    
+    const nameContains = players.filter(p => 
+      p.name.toLowerCase().includes(queryLower) && 
+      !exactMatches.includes(p) &&
+      !nameStartsWith.includes(p)
+    )
+    
+    const teamMatches = players.filter(p => 
+      p.team.toLowerCase().includes(queryLower) && 
+      !exactMatches.includes(p) &&
+      !nameStartsWith.includes(p) &&
+      !nameContains.includes(p)
+    )
+    
+    return [...exactMatches, ...nameStartsWith, ...nameContains, ...teamMatches]
   }
 
 
