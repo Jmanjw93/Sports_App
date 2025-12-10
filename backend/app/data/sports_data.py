@@ -401,15 +401,16 @@ class SportsDataCollector:
         # Start from tomorrow to ensure all dates are in the future
         tomorrow = (now + timedelta(days=1)).replace(hour=13, minute=0, second=0, microsecond=0)
         
+        # Calculate this week's Sunday and next week's Sunday (used for week labeling)
+        now_weekday = now.weekday()  # 0=Monday, 6=Sunday
+        days_until_sunday = (6 - now_weekday) % 7
+        if days_until_sunday == 0:
+            days_until_sunday = 7  # Next week if today is Sunday
+        this_week_sunday = tomorrow + timedelta(days=days_until_sunday - 1)
+        next_week_sunday = this_week_sunday + timedelta(days=7)
+        
         # Real NFL games for this week and next week
         if sport == "nfl":
-            # Calculate this week's Sunday and next week's Sunday
-            now_weekday = now.weekday()  # 0=Monday, 6=Sunday
-            days_until_sunday = (6 - now_weekday) % 7
-            if days_until_sunday == 0:
-                days_until_sunday = 7  # Next week if today is Sunday
-            this_week_sunday = tomorrow + timedelta(days=days_until_sunday - 1)
-            next_week_sunday = this_week_sunday + timedelta(days=7)
             
             # NFL Week 14-15 games (December 2025)
             teams = []
