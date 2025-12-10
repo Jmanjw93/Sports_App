@@ -3,8 +3,6 @@ Main FastAPI application for Sports Analytics & Betting Predictions
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import games, predictions, odds, bets, player_props, simulations, parlays, learning
-from app.config import settings
 
 app = FastAPI(
     title="Sports Analytics API",
@@ -12,18 +10,22 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS middleware
-# Note: If allow_origins contains ["*"], allow_credentials must be False
-cors_origins = settings.cors_origins_list
-allow_creds = "*" not in cors_origins
+# Allowed frontends
+origins = [
+    "https://sports-7t1fi3av-jmanjw93s-projects.vercel.app",  # Vercel production
+    "http://localhost:3000",                                  # local dev (optional)
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins,
-    allow_credentials=allow_creds,
+    allow_origins=origins,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# make sure this is ABOVE your router includes
+from app.routers import games, predictions, odds, bets, player_props, simulations, parlays, learning
 
 # Include routers
 app.include_router(games.router, prefix="/api/games", tags=["games"])
