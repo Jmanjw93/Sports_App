@@ -29,23 +29,53 @@ export default function PlayerComparison({ sport = 'nfl' }: PlayerComparisonProp
   const [search2, setSearch2] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const mockPlayers: Player[] = [
-    { name: 'Patrick Mahomes', team: 'Kansas City Chiefs', position: 'QB', stats: { yards_per_game: 285, touchdowns: 2.1 } },
-    { name: 'Josh Allen', team: 'Buffalo Bills', position: 'QB', stats: { yards_per_game: 275, touchdowns: 2.3 } },
-    { name: 'Lamar Jackson', team: 'Baltimore Ravens', position: 'QB', stats: { yards_per_game: 240, touchdowns: 1.8 } },
-    { name: 'LeBron James', team: 'Los Angeles Lakers', position: 'SF', stats: { points_per_game: 25.5, assists_per_game: 7.2, rebounds_per_game: 8.1 } },
-    { name: 'Stephen Curry', team: 'Golden State Warriors', position: 'PG', stats: { points_per_game: 26.4, assists_per_game: 5.1, rebounds_per_game: 4.5 } },
-  ]
+  const mockPlayers: { [key: string]: Player[] } = {
+    nfl: [
+      { name: 'Patrick Mahomes', team: 'Kansas City Chiefs', position: 'QB', stats: { yards_per_game: 285, touchdowns: 2.1 } },
+      { name: 'Josh Allen', team: 'Buffalo Bills', position: 'QB', stats: { yards_per_game: 275, touchdowns: 2.3 } },
+      { name: 'Lamar Jackson', team: 'Baltimore Ravens', position: 'QB', stats: { yards_per_game: 240, touchdowns: 1.8 } },
+      { name: 'Travis Kelce', team: 'Kansas City Chiefs', position: 'TE', stats: { yards_per_game: 75, touchdowns: 0.8 } },
+      { name: 'Tyreek Hill', team: 'Miami Dolphins', position: 'WR', stats: { yards_per_game: 95, touchdowns: 0.9 } },
+    ],
+    nba: [
+      { name: 'LeBron James', team: 'Los Angeles Lakers', position: 'SF', stats: { points_per_game: 25.5, assists_per_game: 7.2, rebounds_per_game: 8.1 } },
+      { name: 'Stephen Curry', team: 'Golden State Warriors', position: 'PG', stats: { points_per_game: 26.4, assists_per_game: 5.1, rebounds_per_game: 4.5 } },
+      { name: 'Kevin Durant', team: 'Phoenix Suns', position: 'PF', stats: { points_per_game: 28.2, assists_per_game: 5.0, rebounds_per_game: 6.8 } },
+      { name: 'Giannis Antetokounmpo', team: 'Milwaukee Bucks', position: 'PF', stats: { points_per_game: 30.4, assists_per_game: 5.7, rebounds_per_game: 11.5 } },
+    ],
+    mlb: [
+      { name: 'Aaron Judge', team: 'New York Yankees', position: 'OF', stats: { hits: 158, home_runs: 62, rbis: 131 } },
+      { name: 'Shohei Ohtani', team: 'Los Angeles Angels', position: 'DH/P', stats: { hits: 138, home_runs: 44, rbis: 95 } },
+    ],
+    nhl: [
+      { name: 'Connor McDavid', team: 'Edmonton Oilers', position: 'C', stats: { goals_per_game: 0.68, assists_per_game: 1.54 } },
+      { name: 'Nathan MacKinnon', team: 'Colorado Avalanche', position: 'C', stats: { goals_per_game: 0.58, assists_per_game: 1.12 } },
+    ]
+  }
 
   const searchPlayers = (query: string) => {
     if (!query) return []
-    return mockPlayers.filter(p => 
+    const players = mockPlayers[sport] || []
+    return players.filter(p => 
       p.name.toLowerCase().includes(query.toLowerCase()) ||
       p.team.toLowerCase().includes(query.toLowerCase())
     )
   }
 
+
+  const getRelevantStats = (): string[] => {
+    if (sport === 'nfl') return ['yards_per_game', 'touchdowns']
+    if (sport === 'nba') return ['points_per_game', 'assists_per_game', 'rebounds_per_game']
+    if (sport === 'mlb') return ['hits', 'home_runs', 'rbis']
+    if (sport === 'nhl') return ['goals_per_game', 'assists_per_game']
+    return ['points_per_game']
+  }
+
   const getStatValue = (player: Player, stat: string): number => {
+    // Handle different stat naming conventions
+    if (stat === 'touchdowns' && player.stats.touchdowns !== undefined) {
+      return player.stats.touchdowns
+    }
     return player.stats[stat] || 0
   }
 
@@ -56,17 +86,12 @@ export default function PlayerComparison({ sport = 'nfl' }: PlayerComparisonProp
       assists_per_game: 'Assists/Game',
       rebounds_per_game: 'Rebounds/Game',
       goals_per_game: 'Goals/Game',
-      touchdowns: 'Touchdowns/Game'
+      touchdowns: 'Touchdowns/Game',
+      hits: 'Hits',
+      home_runs: 'Home Runs',
+      rbis: 'RBIs'
     }
-    return labels[stat] || stat
-  }
-
-  const getRelevantStats = (): string[] => {
-    if (sport === 'nfl') return ['yards_per_game', 'touchdowns']
-    if (sport === 'nba') return ['points_per_game', 'assists_per_game', 'rebounds_per_game']
-    if (sport === 'mlb') return ['hits', 'home_runs', 'rbis']
-    if (sport === 'nhl') return ['goals_per_game', 'assists_per_game']
-    return ['points_per_game']
+    return labels[stat] || stat.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
   }
 
   const relevantStats = getRelevantStats()
@@ -183,33 +208,44 @@ export default function PlayerComparison({ sport = 'nfl' }: PlayerComparisonProp
               const val2 = getStatValue(player2, stat)
               const diff = val1 - val2
               const winner = diff > 0 ? player1 : player2
-              const percentDiff = val2 > 0 ? (Math.abs(diff) / val2) * 100 : 0
+              const maxVal = Math.max(val1, val2, 1) // Prevent division by zero
+              const percentDiff = maxVal > 0 ? (Math.abs(diff) / maxVal) * 100 : 0
+              
+              // Calculate bar widths as percentages of the max value
+              const val1Percent = maxVal > 0 ? (val1 / maxVal) * 100 : 0
+              const val2Percent = maxVal > 0 ? (val2 / maxVal) * 100 : 0
 
               return (
                 <div key={stat} className="bg-latte-50/60 p-3 rounded-lg">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-semibold text-gray-900">{getStatLabel(stat)}</span>
-                    <span className={`text-xs font-bold ${diff > 0 ? 'text-gray-900' : 'text-gray-900'}`}>
-                      {diff > 0 ? player1.name : player2.name} leads by {Math.abs(diff).toFixed(1)} ({percentDiff.toFixed(1)}%)
-                    </span>
+                    {diff !== 0 && (
+                      <span className="text-xs font-bold text-gray-900">
+                        {diff > 0 ? player1.name : player2.name} leads by {Math.abs(diff).toFixed(1)} 
+                        {percentDiff > 0 && ` (${percentDiff.toFixed(1)}%)`}
+                      </span>
+                    )}
+                    {diff === 0 && (
+                      <span className="text-xs font-bold text-gray-600">Tied</span>
+                    )}
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 mb-1">
                     <div className="flex-1 bg-warm-200 rounded-full h-4 relative overflow-hidden">
                       <div
-                        className={`h-full ${diff > 0 ? 'bg-warm-500' : 'bg-warm-300'}`}
-                        style={{ width: `${val1 > val2 ? 50 + (percentDiff / 2) : 50 - (percentDiff / 2)}%` }}
+                        className={`h-full ${diff > 0 ? 'bg-warm-500' : diff < 0 ? 'bg-warm-300' : 'bg-warm-400'}`}
+                        style={{ width: `${Math.min(val1Percent, 100)}%` }}
                       />
                     </div>
                     <div className="flex-1 bg-cozy-200 rounded-full h-4 relative overflow-hidden">
                       <div
-                        className={`h-full ${diff < 0 ? 'bg-cozy-500' : 'bg-cozy-300'}`}
-                        style={{ width: `${val2 > val1 ? 50 + (percentDiff / 2) : 50 - (percentDiff / 2)}%` }}
+                        className={`h-full ${diff < 0 ? 'bg-cozy-500' : diff > 0 ? 'bg-cozy-300' : 'bg-cozy-400'}`}
+                        style={{ width: `${Math.min(val2Percent, 100)}%` }}
                       />
                     </div>
                   </div>
-                  <div className="flex justify-between text-xs text-gray-900 mt-1">
-                    <span>{val1.toFixed(1)}</span>
-                    <span>{val2.toFixed(1)}</span>
+                  <div className="flex justify-between text-xs text-gray-900">
+                    <span className="font-semibold">{player1.name}: {val1.toFixed(stat === 'touchdowns' || stat.includes('per_game') ? 1 : 0)}</span>
+                    <span className="font-semibold">{player2.name}: {val2.toFixed(stat === 'touchdowns' || stat.includes('per_game') ? 1 : 0)}</span>
                   </div>
                 </div>
               )
