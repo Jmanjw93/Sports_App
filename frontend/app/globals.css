@@ -113,7 +113,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-@keyframes wehuf-glow {
+@keyframes mental-mqw-glow {
   0%, 100% {
     text-shadow: 0 0 20px rgba(249, 115, 22, 0.2), 0 0 50px rgba(242, 109, 29, 0.3);
   }
@@ -139,8 +139,8 @@ h1, h2, h3, h4, h5, h6 {
   animation: loading-bar-vertical 3s ease-in-out infinite;
 }
 
-.wehuf-glow {
-  animation: wehuf-glow 6s ease-in-out infinite;
+.mental-mqw-glow {
+  animation: mental-mqw-glow 6s ease-in-out infinite;
 }
 
 /* Sports ball animations */

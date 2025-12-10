@@ -5,7 +5,7 @@ import InteractiveBall from './InteractiveBall'
 export default function BackgroundDesign() {
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0 pulse-background">
-      {/* WEHUF Background Text - Bottom Right with Loading Bar */}
+      {/* MENTAL MQW Background Text - Bottom Right with Loading Bar */}
       <div className="absolute bottom-8 right-8">
         <div className="relative">
           {/* Loading Bar Container - Horizontal */}
@@ -67,9 +67,9 @@ export default function BackgroundDesign() {
             />
           </div>
 
-          {/* WEHUF Text with Glow */}
+          {/* MENTAL MQW Text with Glow */}
           <div 
-            className="font-black text-warm-300/30 select-none wehuf-glow relative z-10"
+            className="font-black text-warm-300/30 select-none mental-mqw-glow relative z-10"
             style={{ 
               fontFamily: 'var(--font-comfortaa), system-ui, sans-serif',
               letterSpacing: '0.05em',
@@ -81,7 +81,7 @@ export default function BackgroundDesign() {
               textShadow: '0 0 30px rgba(249, 115, 22, 0.2)'
             }}
           >
-            WEHUF
+            MENTAL MQW
             {/* Animated overlay effect on text */}
             <div 
               className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-300/40 to-transparent loading-bar-horizontal"

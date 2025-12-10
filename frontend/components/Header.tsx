@@ -15,7 +15,7 @@ export default function Header({ sport, setSport }: HeaderProps) {
           <div className="flex items-center space-x-3">
             <Trophy className="text-amber-200" size={32} />
             <div>
-              <h1 className="text-2xl font-display font-bold text-white tracking-tight drop-shadow-lg">wehuf sports analytics</h1>
+              <h1 className="text-2xl font-display font-bold text-white tracking-tight drop-shadow-lg">Mental MQW</h1>
               <p className="text-sm font-sans text-white/95">Professional Betting Predictions</p>
             </div>
           </div>

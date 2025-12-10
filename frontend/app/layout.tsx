@@ -23,7 +23,7 @@ const merriweather = Merriweather({
 })
 
 export const metadata: Metadata = {
-  title: 'wehuf sports analytics & Betting Predictions',
+  title: 'Mental MQW',
   description: 'Professional sports betting analytics with weather integration',
 }
 
