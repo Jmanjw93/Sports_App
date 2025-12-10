@@ -194,10 +194,11 @@ export default function PlayerComparison({ sport = 'nfl' }: PlayerComparisonProp
               placeholder="Search Player 1..."
               value={search1}
               onChange={(e) => setSearch1(e.target.value)}
-              className="w-full px-4 py-2 border-2 border-warm-300 rounded-lg focus:ring-2 focus:ring-warm-400 focus:border-warm-500"
+              onFocus={() => {}}
+              className="w-full px-4 py-2 border-2 border-warm-300 rounded-lg focus:ring-2 focus:ring-warm-400 focus:border-warm-500 text-gray-900"
             />
             {search1 && searchPlayers(search1).length > 0 && (
-              <div className="absolute z-10 w-full mt-1 bg-latte-50 border-2 border-warm-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+              <div className="absolute z-20 w-full mt-1 bg-white border-2 border-warm-300 rounded-lg shadow-xl max-h-60 overflow-y-auto">
                 {searchPlayers(search1).map((player, idx) => (
                   <div
                     key={idx}
@@ -205,12 +206,17 @@ export default function PlayerComparison({ sport = 'nfl' }: PlayerComparisonProp
                       setPlayer1(player)
                       setSearch1('')
                     }}
-                    className="p-3 hover:bg-warm-50 cursor-pointer border-b border-warm-100 last:border-b-0"
+                    className="p-3 hover:bg-warm-50 cursor-pointer border-b border-warm-100 last:border-b-0 transition-colors"
                   >
                     <div className="font-semibold text-gray-900">{player.name}</div>
-                    <div className="text-xs text-gray-800">{player.team} • {player.position}</div>
+                    <div className="text-xs text-gray-600">{player.team} • {player.position}</div>
                   </div>
                 ))}
+              </div>
+            )}
+            {search1 && searchPlayers(search1).length === 0 && (
+              <div className="absolute z-20 w-full mt-1 bg-white border-2 border-gray-300 rounded-lg shadow-lg p-3">
+                <div className="text-sm text-gray-600">No players found matching "{search1}"</div>
               </div>
             )}
           </div>
@@ -239,10 +245,11 @@ export default function PlayerComparison({ sport = 'nfl' }: PlayerComparisonProp
               placeholder="Search Player 2..."
               value={search2}
               onChange={(e) => setSearch2(e.target.value)}
-              className="w-full px-4 py-2 border-2 border-cozy-300 rounded-lg focus:ring-2 focus:ring-cozy-400 focus:border-cozy-500"
+              onFocus={() => {}}
+              className="w-full px-4 py-2 border-2 border-cozy-300 rounded-lg focus:ring-2 focus:ring-cozy-400 focus:border-cozy-500 text-gray-900"
             />
             {search2 && searchPlayers(search2).length > 0 && (
-              <div className="absolute z-10 w-full mt-1 bg-latte-50 border-2 border-cozy-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+              <div className="absolute z-20 w-full mt-1 bg-white border-2 border-cozy-300 rounded-lg shadow-xl max-h-60 overflow-y-auto">
                 {searchPlayers(search2).map((player, idx) => (
                   <div
                     key={idx}
@@ -250,12 +257,17 @@ export default function PlayerComparison({ sport = 'nfl' }: PlayerComparisonProp
                       setPlayer2(player)
                       setSearch2('')
                     }}
-                    className="p-3 hover:bg-cozy-50 cursor-pointer border-b border-cozy-100 last:border-b-0"
+                    className="p-3 hover:bg-cozy-50 cursor-pointer border-b border-cozy-100 last:border-b-0 transition-colors"
                   >
                     <div className="font-semibold text-gray-900">{player.name}</div>
-                    <div className="text-xs text-cozy-600">{player.team} • {player.position}</div>
+                    <div className="text-xs text-gray-600">{player.team} • {player.position}</div>
                   </div>
                 ))}
+              </div>
+            )}
+            {search2 && searchPlayers(search2).length === 0 && (
+              <div className="absolute z-20 w-full mt-1 bg-white border-2 border-gray-300 rounded-lg shadow-lg p-3">
+                <div className="text-sm text-gray-600">No players found matching "{search2}"</div>
               </div>
             )}
           </div>
