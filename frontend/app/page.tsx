@@ -9,13 +9,14 @@ import PlayerComparison from '@/components/PlayerComparison'
 import AnalyticsDashboard from '@/components/AnalyticsDashboard'
 import ParlayBuilder from '@/components/ParlayBuilder'
 import LearningDashboard from '@/components/LearningDashboard'
+import LockedPredictions from '@/components/LockedPredictions'
 import Header from '@/components/Header'
 import BackgroundDesign from '@/components/BackgroundDesign'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
-import { TrendingUp, Target, BarChart3, Calculator, Users, Activity, Star, Lightbulb } from 'lucide-react'
+import { TrendingUp, Target, BarChart3, Calculator, Users, Activity, Star, Lightbulb, Lock } from 'lucide-react'
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'games' | 'bets' | 'player-bets' | 'calculator' | 'comparison' | 'analytics' | 'parlay' | 'learning'>('games')
+  const [activeTab, setActiveTab] = useState<'games' | 'bets' | 'player-bets' | 'calculator' | 'comparison' | 'analytics' | 'parlay' | 'learning' | 'locked'>('games')
   const [sport, setSport] = useState('nfl')
 
   return (
@@ -94,6 +95,17 @@ export default function Home() {
               <Activity size={20} />
               <span>Analytics</span>
             </button>
+            <button
+              onClick={() => setActiveTab('locked')}
+              className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-heading font-semibold transition-all duration-200 transform tracking-tight ${
+                activeTab === 'locked'
+                  ? 'bg-purple-600 text-white shadow-lg scale-105 shadow-purple-800/50'
+                  : 'bg-white/90 text-gray-900 hover:bg-purple-50 hover:scale-105 border-2 border-purple-400'
+              }`}
+            >
+              <Lock size={20} />
+              <span>Locked Predictions</span>
+            </button>
           </div>
 
           {/* Content */}
@@ -106,6 +118,11 @@ export default function Home() {
             {activeTab === 'analytics' && <AnalyticsDashboard sport={sport} />}
             {activeTab === 'parlay' && <ParlayBuilder sport={sport} />}
             {activeTab === 'learning' && <LearningDashboard sport={sport} />}
+            {activeTab === 'locked' && (
+              <div>
+                <LockedPredictions sport={sport} />
+              </div>
+            )}
           </div>
         </div>
         </div>

@@ -24,6 +24,21 @@ class GameResult(BaseModel):
     game_date: Optional[str] = None
 
 
+class LockPredictionRequest(BaseModel):
+    """Request to lock a prediction"""
+    game_id: str
+    sport: str
+    home_team: str
+    away_team: str
+    predicted_winner: str
+    home_win_probability: float
+    away_win_probability: float
+    confidence: float
+    factors: Dict
+    full_prediction_data: Dict
+    game_date: Optional[str] = None
+
+
 @router.post("/submit-result")
 async def submit_game_result(result: GameResult) -> dict:
     """
@@ -220,6 +235,113 @@ async def get_error_analysis(prediction_id: str) -> dict:
         }
     except HTTPException:
         raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/lock-prediction")
+async def lock_prediction(request: LockPredictionRequest) -> dict:
+    """
+    Lock a prediction for future analysis
+    
+    Args:
+        request: LockPredictionRequest with prediction data
+    
+    Returns:
+        Locked prediction ID and confirmation
+    """
+    try:
+        game_date = None
+        if request.game_date:
+            game_date = datetime.fromisoformat(request.game_date)
+        
+        prediction_id = tracker.lock_prediction(
+            game_id=request.game_id,
+            sport=request.sport,
+            home_team=request.home_team,
+            away_team=request.away_team,
+            predicted_winner=request.predicted_winner,
+            home_win_probability=request.home_win_probability,
+            away_win_probability=request.away_win_probability,
+            confidence=request.confidence,
+            factors=request.factors,
+            full_prediction_data=request.full_prediction_data,
+            game_date=game_date
+        )
+        
+        return {
+            "success": True,
+            "prediction_id": prediction_id,
+            "message": "Prediction locked successfully"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/locked-predictions")
+async def get_locked_predictions(
+    include_resolved: bool = True,
+    sport: Optional[str] = None
+) -> dict:
+    """
+    Get all locked predictions
+    
+    Args:
+        include_resolved: Whether to include predictions with resolved outcomes
+        sport: Optional sport filter
+    
+    Returns:
+        List of locked predictions
+    """
+    try:
+        predictions = tracker.get_locked_predictions(include_resolved=include_resolved)
+        
+        if sport:
+            predictions = [p for p in predictions if p.sport == sport]
+        
+        return {
+            "predictions": [
+                {
+                    "prediction_id": p.prediction_id,
+                    "game_id": p.game_id,
+                    "sport": p.sport,
+                    "home_team": p.home_team,
+                    "away_team": p.away_team,
+                    "predicted_winner": p.predicted_winner,
+                    "actual_winner": p.actual_winner,
+                    "home_win_probability": p.home_win_probability,
+                    "away_win_probability": p.away_win_probability,
+                    "confidence": p.confidence,
+                    "outcome": p.outcome.value,
+                    "prediction_date": p.prediction_date.isoformat() if p.prediction_date else None,
+                    "locked_date": p.locked_date.isoformat() if p.locked_date else None,
+                    "game_date": p.game_date.isoformat() if p.game_date else None,
+                    "factors": p.factors,
+                    "full_prediction_data": p.full_prediction_data,
+                    "error_analysis": p.error_analysis
+                }
+                for p in predictions
+            ],
+            "total": len(predictions)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/analyze-prediction/{prediction_id}")
+async def analyze_prediction(prediction_id: str) -> dict:
+    """
+    Analyze why a prediction was correct or incorrect
+    
+    Args:
+        prediction_id: Prediction ID
+    
+    Returns:
+        Detailed analysis of prediction accuracy
+    """
+    try:
+        analysis = tracker.analyze_prediction_accuracy(prediction_id)
+        return analysis
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

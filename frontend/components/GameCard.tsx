@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import axios from 'axios'
-import { Calendar, MapPin, TrendingUp, Cloud, ChevronDown, ChevronUp, Trophy, Loader2 } from 'lucide-react'
+import { Calendar, MapPin, TrendingUp, Cloud, ChevronDown, ChevronUp, Trophy, Loader2, Lock, LockOpen } from 'lucide-react'
 import ConfidenceBar from './ConfidenceBar'
 import GameSimulator from './GameSimulator'
 
@@ -172,6 +172,8 @@ export default function GameCard({ game }: { game: Game }) {
   const [prediction, setPrediction] = useState<Prediction | null>(null)
   const [loading, setLoading] = useState(false)
   const [expanded, setExpanded] = useState(false)
+  const [isLocked, setIsLocked] = useState(false)
+  const [locking, setLocking] = useState(false)
 
   const fetchPrediction = async () => {
     if (prediction) {
@@ -190,6 +192,50 @@ export default function GameCard({ game }: { game: Game }) {
       console.error('Error fetching prediction:', err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const lockPrediction = async () => {
+    if (!prediction) {
+      alert('Please view prediction first before locking')
+      return
+    }
+
+    try {
+      setLocking(true)
+      const factors: any = {}
+      
+      if (prediction.weather_impact) factors.weather = prediction.weather_impact
+      if (prediction.injury_impact) factors.injuries = prediction.injury_impact
+      if (prediction.coaching_impact) factors.coaching = prediction.coaching_impact
+      if (prediction.mental_health_impact) factors.mental_health = prediction.mental_health_impact
+
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/api/learning/lock-prediction`,
+        {
+          game_id: game.game_id,
+          sport: game.sport,
+          home_team: game.home_team,
+          away_team: game.away_team,
+          predicted_winner: prediction.predicted_winner,
+          home_win_probability: prediction.home_win_probability,
+          away_win_probability: prediction.away_win_probability,
+          confidence: prediction.confidence,
+          factors: factors,
+          full_prediction_data: prediction,
+          game_date: game.date
+        }
+      )
+
+      if (response.data.success) {
+        setIsLocked(true)
+        alert('Prediction locked! You can analyze it later in the Locked Predictions section.')
+      }
+    } catch (err: any) {
+      console.error('Error locking prediction:', err)
+      alert(err.response?.data?.detail || 'Failed to lock prediction')
+    } finally {
+      setLocking(false)
     }
   }
 
@@ -681,28 +727,62 @@ export default function GameCard({ game }: { game: Game }) {
         </div>
       )}
 
-      <button
-        onClick={fetchPrediction}
-        disabled={loading}
-        className="w-full mt-4 bg-gradient-to-r from-warm-500 to-amber-500 hover:from-sky-600 hover:to-mint-600 text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-sky-400/50"
-      >
-        {loading ? (
-          <>
-            <Loader2 className="animate-spin" size={16} />
-            Loading prediction...
-          </>
-        ) : expanded ? (
-          <>
-            <ChevronUp size={16} />
-            Hide Prediction
-          </>
-        ) : (
-          <>
-            <TrendingUp size={16} />
-            View Prediction
-          </>
+      <div className="flex gap-2 mt-4">
+        <button
+          onClick={fetchPrediction}
+          disabled={loading}
+          className="flex-1 bg-gradient-to-r from-warm-500 to-amber-500 hover:from-sky-600 hover:to-mint-600 text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-sky-400/50"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="animate-spin" size={16} />
+              Loading prediction...
+            </>
+          ) : expanded ? (
+            <>
+              <ChevronUp size={16} />
+              Hide Prediction
+            </>
+          ) : (
+            <>
+              <TrendingUp size={16} />
+              View Prediction
+            </>
+          )}
+        </button>
+        
+        {prediction && !isLocked && (
+          <button
+            onClick={lockPrediction}
+            disabled={locking}
+            className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-purple-400/50"
+            title="Lock this prediction for future analysis"
+          >
+            {locking ? (
+              <>
+                <Loader2 className="animate-spin" size={16} />
+                Locking...
+              </>
+            ) : (
+              <>
+                <Lock size={16} />
+                Lock
+              </>
+            )}
+          </button>
         )}
-      </button>
+        
+        {isLocked && (
+          <button
+            disabled
+            className="bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 shadow-xl shadow-green-400/50 cursor-default"
+            title="This prediction is locked"
+          >
+            <LockOpen size={16} />
+            Locked
+          </button>
+        )}
+      </div>
     </div>
   )
 }

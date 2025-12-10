@@ -35,6 +35,9 @@ class StoredPrediction:
     factors: Dict = field(default_factory=dict)  # Weather, injuries, coaching, etc.
     score: Optional[Dict] = None  # Actual game score
     error_analysis: Optional[Dict] = None  # Analysis of why prediction was wrong
+    locked: bool = False  # Whether this prediction was manually locked by user
+    locked_date: Optional[datetime] = None  # When the prediction was locked
+    full_prediction_data: Optional[Dict] = None  # Full prediction data snapshot when locked
 
 
 @dataclass
@@ -64,10 +67,12 @@ class PredictionTracker:
                     data = json.load(f)
                     for pred_id, pred_data in data.items():
                         # Convert datetime strings back to datetime objects
-                        if 'prediction_date' in pred_data:
+                        if 'prediction_date' in pred_data and pred_data['prediction_date']:
                             pred_data['prediction_date'] = datetime.fromisoformat(pred_data['prediction_date'])
                         if 'game_date' in pred_data and pred_data['game_date']:
                             pred_data['game_date'] = datetime.fromisoformat(pred_data['game_date'])
+                        if 'locked_date' in pred_data and pred_data['locked_date']:
+                            pred_data['locked_date'] = datetime.fromisoformat(pred_data['locked_date'])
                         if 'outcome' in pred_data:
                             pred_data['outcome'] = PredictionOutcome(pred_data['outcome'])
                         self.predictions[pred_id] = StoredPrediction(**pred_data)
@@ -87,6 +92,8 @@ class PredictionTracker:
                     pred_dict['prediction_date'] = pred_dict['prediction_date'].isoformat()
                 if pred_dict.get('game_date'):
                     pred_dict['game_date'] = pred_dict['game_date'].isoformat()
+                if pred_dict.get('locked_date'):
+                    pred_dict['locked_date'] = pred_dict['locked_date'].isoformat()
                 if pred_dict.get('outcome'):
                     pred_dict['outcome'] = pred_dict['outcome'].value
                 data[pred_id] = pred_dict
@@ -188,4 +195,122 @@ class PredictionTracker:
             "accuracy": correct / len(predictions) if predictions else 0.0,
             "pending": sum(1 for p in self.predictions.values() if p.outcome == PredictionOutcome.PENDING)
         }
+    
+    def lock_prediction(
+        self,
+        game_id: str,
+        sport: str,
+        home_team: str,
+        away_team: str,
+        predicted_winner: str,
+        home_win_probability: float,
+        away_win_probability: float,
+        confidence: float,
+        factors: Dict,
+        full_prediction_data: Dict,
+        game_date: Optional[datetime] = None
+    ) -> str:
+        """Lock a prediction for future analysis"""
+        prediction_id = f"{game_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        
+        prediction = StoredPrediction(
+            prediction_id=prediction_id,
+            game_id=game_id,
+            sport=sport,
+            home_team=home_team,
+            away_team=away_team,
+            predicted_winner=predicted_winner,
+            home_win_probability=home_win_probability,
+            away_win_probability=away_win_probability,
+            confidence=confidence,
+            game_date=game_date,
+            factors=factors,
+            locked=True,
+            locked_date=datetime.now(),
+            full_prediction_data=full_prediction_data
+        )
+        
+        self.predictions[prediction_id] = prediction
+        self._save_predictions()
+        return prediction_id
+    
+    def get_locked_predictions(self, include_resolved: bool = True) -> List[StoredPrediction]:
+        """Get all locked predictions"""
+        locked = [p for p in self.predictions.values() if p.locked]
+        if not include_resolved:
+            locked = [p for p in locked if p.outcome == PredictionOutcome.PENDING]
+        return sorted(locked, key=lambda x: x.locked_date or x.prediction_date, reverse=True)
+    
+    def analyze_prediction_accuracy(self, prediction_id: str) -> Dict:
+        """Analyze why a prediction was correct or incorrect"""
+        prediction = self.get_prediction(prediction_id)
+        if not prediction:
+            return {"error": "Prediction not found"}
+        
+        if prediction.outcome == PredictionOutcome.PENDING:
+            return {"error": "Prediction outcome not yet recorded"}
+        
+        analysis = {
+            "prediction_id": prediction_id,
+            "was_correct": prediction.outcome == PredictionOutcome.CORRECT,
+            "predicted_winner": prediction.predicted_winner,
+            "actual_winner": prediction.actual_winner,
+            "predicted_probabilities": {
+                "home": prediction.home_win_probability,
+                "away": prediction.away_win_probability
+            },
+            "confidence": prediction.confidence,
+            "factors_analysis": {}
+        }
+        
+        # Analyze factors that contributed to the outcome
+        if prediction.factors:
+            # Weather impact analysis
+            if "weather" in prediction.factors:
+                weather = prediction.factors.get("weather", {})
+                analysis["factors_analysis"]["weather"] = {
+                    "had_impact": bool(weather),
+                    "description": weather.get("description", "No significant weather impact")
+                }
+            
+            # Injury impact analysis
+            if "injuries" in prediction.factors:
+                injuries = prediction.factors.get("injuries", {})
+                analysis["factors_analysis"]["injuries"] = {
+                    "home_impact": injuries.get("home_injury_impact", 0),
+                    "away_impact": injuries.get("away_injury_impact", 0),
+                    "adjustment": injuries.get("adjustment", 0)
+                }
+            
+            # Coaching impact analysis
+            if "coaching" in prediction.factors:
+                coaching = prediction.factors.get("coaching", {})
+                analysis["factors_analysis"]["coaching"] = {
+                    "adjustment": coaching.get("adjustment_factor", 0),
+                    "insight": coaching.get("key_insight", "")
+                }
+            
+            # Mental health impact analysis
+            if "mental_health" in prediction.factors:
+                mental_health = prediction.factors.get("mental_health", {})
+                analysis["factors_analysis"]["mental_health"] = {
+                    "net_adjustment": mental_health.get("net_adjustment", 0),
+                    "summary": mental_health.get("summary", "")
+                }
+        
+        # Determine what went right or wrong
+        if prediction.outcome == PredictionOutcome.CORRECT:
+            analysis["success_factors"] = [
+                "Prediction correctly identified the winner",
+                f"Confidence level: {prediction.confidence:.0%}",
+                "Key factors aligned with actual outcome"
+            ]
+        else:
+            analysis["error_factors"] = [
+                f"Predicted {prediction.predicted_winner} but {prediction.actual_winner} won",
+                f"Confidence was {prediction.confidence:.0%} but prediction was incorrect",
+                "Key factors may have been misweighted or changed"
+            ]
+        
+        return analysis
 
