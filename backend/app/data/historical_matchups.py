@@ -156,6 +156,62 @@ class HistoricalMatchupAnalyzer:
             "trend": "improving" if games[-1]["value"] > avg_value else "declining" if len(games) > 1 else "stable"
         }
     
+    def get_offensive_coordinator(
+        self,
+        team_name: str,
+        sport: str = "nfl"
+    ) -> str:
+        """
+        Get the offensive coordinator for a team
+        
+        Args:
+            team_name: Team name
+            sport: Sport type
+        
+        Returns:
+            Offensive coordinator name
+        """
+        # Mock offensive coordinator assignments - in production, fetch from team data
+        oc_map = {
+            "Kansas City Chiefs": "Matt Nagy",
+            "Buffalo Bills": "Ken Dorsey",
+            "Philadelphia Eagles": "Brian Johnson",
+            "Los Angeles Chargers": "Kellen Moore",
+            "San Francisco 49ers": "Kyle Shanahan",
+            "Seattle Seahawks": "Shane Waldron",
+            "Miami Dolphins": "Frank Smith",
+            "New York Jets": "Nathaniel Hackett",
+            "Baltimore Ravens": "Todd Monken",
+            "Pittsburgh Steelers": "Matt Canada",
+            "Green Bay Packers": "Adam Stenavich",
+            "Chicago Bears": "Luke Getsy",
+            "Detroit Lions": "Ben Johnson",
+            "Minnesota Vikings": "Wes Phillips",
+            "Cleveland Browns": "Alex Van Pelt",
+            "Cincinnati Bengals": "Brian Callahan",
+            "Dallas Cowboys": "Brian Schottenheimer",
+            "New England Patriots": "Bill O'Brien",
+            "Tampa Bay Buccaneers": "Dave Canales",
+            "Atlanta Falcons": "Dave Ragone",
+            "Los Angeles Rams": "Mike LaFleur",
+            "Arizona Cardinals": "Drew Petzing",
+            "Las Vegas Raiders": "Mick Lombardi",
+            "Denver Broncos": "Joe Lombardi",
+            "Tennessee Titans": "Tim Kelly",
+            "Jacksonville Jaguars": "Press Taylor",
+            "New Orleans Saints": "Pete Carmichael",
+            "Carolina Panthers": "Thomas Brown",
+            "Indianapolis Colts": "Jim Bob Cooter",
+            "Houston Texans": "Bobby Slowik",
+            "Washington Commanders": "Eric Bieniemy",
+            "New York Giants": "Mike Kafka"
+        }
+        
+        if sport == "nfl":
+            return oc_map.get(team_name, "Unknown OC")
+        else:
+            return "Unknown OC"
+    
     def get_team_coach(
         self,
         team_name: str,
@@ -548,7 +604,7 @@ class HistoricalMatchupAnalyzer:
         sport: str = "nfl"
     ) -> Dict:
         """
-        Analyze the head coach vs head coach matchup
+        Analyze the head coach vs head coach matchup and coordinator matchups
         
         Args:
             home_team: Home team name
@@ -561,33 +617,53 @@ class HistoricalMatchupAnalyzer:
         home_coach = self.get_head_coach(home_team, sport)
         away_coach = self.get_head_coach(away_team, sport)
         
-        # Get historical matchup
+        # Get historical head coach matchup
         coach_history = self.get_coach_vs_coach_history(home_coach, away_coach, sport)
         
-        # Calculate adjustment factor for game prediction
-        # If home coach has advantage, boost home team probability
-        # If away coach has advantage, reduce home team probability
-        adjustment = 0.0
+        # Calculate head coach adjustment factor
+        head_coach_adjustment = 0.0
         
         if coach_history["advantage"] == "home_coach":
             if coach_history["advantage_strength"] == "strong":
-                adjustment = 0.05  # 5% boost for strong advantage
+                head_coach_adjustment = 0.05  # 5% boost for strong advantage
             else:
-                adjustment = 0.03  # 3% boost for moderate advantage
+                head_coach_adjustment = 0.03  # 3% boost for moderate advantage
         elif coach_history["advantage"] == "away_coach":
             if coach_history["advantage_strength"] == "strong":
-                adjustment = -0.05  # 5% reduction for strong advantage
+                head_coach_adjustment = -0.05  # 5% reduction for strong advantage
             else:
-                adjustment = -0.03  # 3% reduction for moderate advantage
+                head_coach_adjustment = -0.03  # 3% reduction for moderate advantage
         
         # Factor in point differential (larger margins = stronger advantage)
         if abs(coach_history["avg_point_differential"]) > 7:
-            adjustment *= 1.2  # Boost adjustment if large point differentials
+            head_coach_adjustment *= 1.2  # Boost adjustment if large point differentials
         elif abs(coach_history["avg_point_differential"]) < 3:
-            adjustment *= 0.8  # Reduce adjustment if close games
+            head_coach_adjustment *= 0.8  # Reduce adjustment if close games
         
-        # Cap adjustment
-        adjustment = max(-0.08, min(0.08, adjustment))
+        # Get coordinator matchup analysis
+        coordinator_matchup = None
+        coordinator_adjustment = 0.0
+        if sport == "nfl":  # Coordinator matchups most relevant for NFL
+            try:
+                coordinator_matchup = self.analyze_coordinator_matchup(home_team, away_team, sport)
+                coordinator_adjustment = coordinator_matchup.get("adjustment_factor", 0.0)
+            except Exception as e:
+                print(f"Error analyzing coordinator matchup: {e}")
+                coordinator_matchup = None
+        
+        # Combine head coach and coordinator adjustments
+        # Weight: 60% head coach, 40% coordinators
+        total_adjustment = (head_coach_adjustment * 0.6) + (coordinator_adjustment * 0.4)
+        
+        # Cap total adjustment
+        total_adjustment = max(-0.10, min(0.10, total_adjustment))
+        
+        # Generate combined insight
+        head_coach_insight = self._generate_coaching_insight(coach_history, home_team, away_team)
+        combined_insight = head_coach_insight
+        
+        if coordinator_matchup:
+            combined_insight += f" | Coordinator Matchup: {coordinator_matchup.get('home_oc_insight', '')}"
         
         return {
             "home_coach": home_coach,
@@ -595,8 +671,11 @@ class HistoricalMatchupAnalyzer:
             "home_team": home_team,  # Include team names
             "away_team": away_team,  # Include team names
             "historical_record": coach_history,
-            "adjustment_factor": round(adjustment, 3),
-            "key_insight": self._generate_coaching_insight(coach_history, home_team, away_team)
+            "adjustment_factor": round(total_adjustment, 3),
+            "head_coach_adjustment": round(head_coach_adjustment, 3),
+            "coordinator_adjustment": round(coordinator_adjustment, 3),
+            "coordinator_matchup": coordinator_matchup,
+            "key_insight": combined_insight
         }
     
     def _generate_coaching_insight(self, coach_history: Dict, home_team: str = "", away_team: str = "") -> str:
@@ -626,4 +705,125 @@ class HistoricalMatchupAnalyzer:
                 return f"{away_coach_display} has a moderate advantage{record_info} - {coach_history['away_coach_win_rate']:.0%} win rate in {coach_history['num_games']} games"
         else:
             return f"Coaching matchup is historically even{record_info} - {coach_history['home_coach_win_rate']:.0%} vs {coach_history['away_coach_win_rate']:.0%} in {coach_history['num_games']} games"
+    
+    def analyze_coordinator_matchup(
+        self,
+        home_team: str,
+        away_team: str,
+        sport: str = "nfl"
+    ) -> Dict:
+        """
+        Analyze the offensive coordinator vs defensive coordinator matchup
+        
+        Args:
+            home_team: Home team name
+            away_team: Away team name
+            sport: Sport type
+        
+        Returns:
+            Dictionary with coordinator matchup analysis and adjustment factor
+        """
+        # Get coordinators
+        home_oc = self.get_offensive_coordinator(home_team, sport)
+        away_dc = self.get_team_coach(away_team, sport)  # This returns DC
+        
+        away_oc = self.get_offensive_coordinator(away_team, sport)
+        home_dc = self.get_team_coach(home_team, sport)  # This returns DC
+        
+        # Analyze both matchups: Home OC vs Away DC, and Away OC vs Home DC
+        home_oc_vs_away_dc = self.get_coach_vs_coach_history(home_oc, away_dc, sport)
+        away_oc_vs_home_dc = self.get_coach_vs_coach_history(away_oc, home_dc, sport)
+        
+        # Calculate net adjustment
+        # Home OC success vs Away DC = positive for home team
+        # Away OC success vs Home DC = negative for home team
+        home_oc_advantage = 0.0
+        if home_oc_vs_away_dc["advantage"] == "home_coach":
+            if home_oc_vs_away_dc["advantage_strength"] == "strong":
+                home_oc_advantage = 0.03  # 3% boost
+            else:
+                home_oc_advantage = 0.02  # 2% boost
+        elif home_oc_vs_away_dc["advantage"] == "away_coach":
+            if home_oc_vs_away_dc["advantage_strength"] == "strong":
+                home_oc_advantage = -0.03  # 3% reduction
+            else:
+                home_oc_advantage = -0.02  # 2% reduction
+        
+        away_oc_advantage = 0.0
+        if away_oc_vs_home_dc["advantage"] == "home_coach":  # Note: "home_coach" here means away_oc
+            if away_oc_vs_home_dc["advantage_strength"] == "strong":
+                away_oc_advantage = -0.03  # Negative for home team
+            else:
+                away_oc_advantage = -0.02
+        elif away_oc_vs_home_dc["advantage"] == "away_coach":  # Note: "away_coach" here means home_dc
+            if away_oc_vs_home_dc["advantage_strength"] == "strong":
+                away_oc_advantage = 0.03  # Positive for home team (DC wins)
+            else:
+                away_oc_advantage = 0.02
+        
+        # Net adjustment from coordinator matchups
+        coordinator_adjustment = home_oc_advantage + away_oc_advantage
+        
+        # Factor in point differentials
+        if abs(home_oc_vs_away_dc["avg_point_differential"]) > 7:
+            home_oc_advantage *= 1.2
+        if abs(away_oc_vs_home_dc["avg_point_differential"]) > 7:
+            away_oc_advantage *= 1.2
+        
+        coordinator_adjustment = home_oc_advantage + away_oc_advantage
+        
+        # Cap adjustment
+        coordinator_adjustment = max(-0.06, min(0.06, coordinator_adjustment))
+        
+        # Generate insights
+        home_oc_insight = self._generate_coordinator_insight(
+            home_oc_vs_away_dc, home_oc, away_dc, "Home OC", "Away DC"
+        )
+        away_oc_insight = self._generate_coordinator_insight(
+            away_oc_vs_home_dc, away_oc, home_dc, "Away OC", "Home DC"
+        )
+        
+        return {
+            "home_oc": home_oc,
+            "away_dc": away_dc,
+            "away_oc": away_oc,
+            "home_dc": home_dc,
+            "home_oc_vs_away_dc": home_oc_vs_away_dc,
+            "away_oc_vs_home_dc": away_oc_vs_home_dc,
+            "adjustment_factor": round(coordinator_adjustment, 3),
+            "home_oc_insight": home_oc_insight,
+            "away_oc_insight": away_oc_insight
+        }
+    
+    def _generate_coordinator_insight(
+        self, 
+        coordinator_history: Dict, 
+        oc_name: str, 
+        dc_name: str,
+        oc_label: str,
+        dc_label: str
+    ) -> str:
+        """Generate a human-readable insight about coordinator matchup"""
+        if coordinator_history["num_games"] == 0:
+            return f"No previous {oc_label} vs {dc_label} history"
+        
+        oc_record = coordinator_history.get("home_coach_record", 
+            f"{coordinator_history['home_coach_wins']}-{coordinator_history['away_coach_wins']}")
+        dc_record = coordinator_history.get("away_coach_record",
+            f"{coordinator_history['away_coach_wins']}-{coordinator_history['home_coach_wins']}")
+        
+        record_info = f" ({oc_record} vs {dc_record})"
+        
+        if coordinator_history["advantage"] == "home_coach":  # OC advantage
+            if coordinator_history["advantage_strength"] == "strong":
+                return f"{oc_name} has strong advantage over {dc_name}{record_info} - {coordinator_history['home_coach_win_rate']:.0%} success rate"
+            else:
+                return f"{oc_name} has moderate advantage over {dc_name}{record_info} - {coordinator_history['home_coach_win_rate']:.0%} success rate"
+        elif coordinator_history["advantage"] == "away_coach":  # DC advantage
+            if coordinator_history["advantage_strength"] == "strong":
+                return f"{dc_name} has strong advantage over {oc_name}{record_info} - {coordinator_history['away_coach_win_rate']:.0%} success rate"
+            else:
+                return f"{dc_name} has moderate advantage over {oc_name}{record_info} - {coordinator_history['away_coach_win_rate']:.0%} success rate"
+        else:
+            return f"{oc_label} vs {dc_label} is historically even{record_info} - {coordinator_history['home_coach_win_rate']:.0%} vs {coordinator_history['away_coach_win_rate']:.0%} in {coordinator_history['num_games']} games"
 

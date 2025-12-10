@@ -370,7 +370,10 @@ class GamePredictor:
                 "home_coach": coaching_matchup.get("home_coach"),
                 "away_coach": coaching_matchup.get("away_coach"),
                 "adjustment_factor": coaching_matchup.get("adjustment_factor"),
+                "head_coach_adjustment": coaching_matchup.get("head_coach_adjustment", 0.0),
+                "coordinator_adjustment": coaching_matchup.get("coordinator_adjustment", 0.0),
                 "historical_record": coaching_matchup.get("historical_record"),
+                "coordinator_matchup": coaching_matchup.get("coordinator_matchup"),
                 "key_insight": coaching_matchup.get("key_insight")
             }
         

@@ -117,6 +117,8 @@ interface Prediction {
     home_team?: string
     away_team?: string
     adjustment_factor: number
+    head_coach_adjustment?: number
+    coordinator_adjustment?: number
     historical_record?: {
       home_coach: string
       away_coach: string
@@ -132,6 +134,33 @@ interface Prediction {
         length: number
         description: string
       }
+    }
+    coordinator_matchup?: {
+      home_oc: string
+      away_dc: string
+      away_oc: string
+      home_dc: string
+      home_oc_vs_away_dc?: {
+        num_games: number
+        home_coach_wins: number
+        away_coach_wins: number
+        home_coach_record?: string
+        away_coach_record?: string
+        home_coach_win_rate: number
+        away_coach_win_rate: number
+      }
+      away_oc_vs_home_dc?: {
+        num_games: number
+        home_coach_wins: number
+        away_coach_wins: number
+        home_coach_record?: string
+        away_coach_record?: string
+        home_coach_win_rate: number
+        away_coach_win_rate: number
+      }
+      adjustment_factor: number
+      home_oc_insight?: string
+      away_oc_insight?: string
     }
     key_insight: string
   }
@@ -387,8 +416,61 @@ export default function GameCard({ game }: { game: Game }) {
               </div>
               {prediction.coaching_impact.adjustment_factor !== undefined && prediction.coaching_impact.adjustment_factor !== 0 && (
                 <div className="text-xs text-gray-900 mt-1 font-semibold">
-                  Adjustment: {prediction.coaching_impact.adjustment_factor > 0 ? '+' : ''}
+                  Total Adjustment: {prediction.coaching_impact.adjustment_factor > 0 ? '+' : ''}
                   {(prediction.coaching_impact.adjustment_factor * 100).toFixed(1)}% win probability
+                  {prediction.coaching_impact.head_coach_adjustment !== undefined && prediction.coaching_impact.coordinator_adjustment !== undefined && (
+                    <span className="text-gray-700 font-normal ml-2">
+                      (HC: {prediction.coaching_impact.head_coach_adjustment > 0 ? '+' : ''}{(prediction.coaching_impact.head_coach_adjustment * 100).toFixed(1)}%, 
+                      Coord: {prediction.coaching_impact.coordinator_adjustment > 0 ? '+' : ''}{(prediction.coaching_impact.coordinator_adjustment * 100).toFixed(1)}%)
+                    </span>
+                  )}
+                </div>
+              )}
+              
+              {/* Coordinator Matchup Section */}
+              {prediction.coaching_impact.coordinator_matchup && (
+                <div className="mt-3 pt-3 border-t-2 border-amber-300">
+                  <div className="text-xs font-semibold text-gray-900 mb-2">🎯 Coordinator Matchups</div>
+                  
+                  {/* Home OC vs Away DC */}
+                  {prediction.coaching_impact.coordinator_matchup.home_oc_vs_away_dc && (
+                    <div className="mb-2 p-2 bg-amber-100/50 rounded">
+                      <div className="text-xs font-semibold text-gray-900 mb-1">
+                        {prediction.coaching_impact.coordinator_matchup.home_oc} (Home OC) vs {prediction.coaching_impact.coordinator_matchup.away_dc} (Away DC)
+                      </div>
+                      {prediction.coaching_impact.coordinator_matchup.home_oc_vs_away_dc.num_games > 0 && (
+                        <div className="text-xs text-gray-800">
+                          Record: {prediction.coaching_impact.coordinator_matchup.home_oc_vs_away_dc.home_coach_record} 
+                          ({prediction.coaching_impact.coordinator_matchup.home_oc_vs_away_dc.home_coach_win_rate * 100}% success rate)
+                        </div>
+                      )}
+                      {prediction.coaching_impact.coordinator_matchup.home_oc_insight && (
+                        <div className="text-xs text-gray-700 mt-1 italic">
+                          {prediction.coaching_impact.coordinator_matchup.home_oc_insight}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Away OC vs Home DC */}
+                  {prediction.coaching_impact.coordinator_matchup.away_oc_vs_home_dc && (
+                    <div className="p-2 bg-amber-100/50 rounded">
+                      <div className="text-xs font-semibold text-gray-900 mb-1">
+                        {prediction.coaching_impact.coordinator_matchup.away_oc} (Away OC) vs {prediction.coaching_impact.coordinator_matchup.home_dc} (Home DC)
+                      </div>
+                      {prediction.coaching_impact.coordinator_matchup.away_oc_vs_home_dc.num_games > 0 && (
+                        <div className="text-xs text-gray-800">
+                          Record: {prediction.coaching_impact.coordinator_matchup.away_oc_vs_home_dc.away_coach_record}
+                          ({prediction.coaching_impact.coordinator_matchup.away_oc_vs_home_dc.away_coach_win_rate * 100}% success rate)
+                        </div>
+                      )}
+                      {prediction.coaching_impact.coordinator_matchup.away_oc_insight && (
+                        <div className="text-xs text-gray-700 mt-1 italic">
+                          {prediction.coaching_impact.coordinator_matchup.away_oc_insight}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
