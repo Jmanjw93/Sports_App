@@ -8,7 +8,7 @@ Based on your URLs, here are the **exact values** you need to set:
 
 ### Backend (Render)
 - **Service ID**: `srv-d4s9imvdiees73a98brg`
-- **URL**: `https://sports-app-ncya.onrender.com` (or similar - check your Render dashboard)
+- **URL**: `https://sports-app-ncya.onrender.com` ✅
 
 ### Frontend (Vercel)
 - **Project**: `sports-app`
@@ -35,11 +35,11 @@ Based on your URLs, here are the **exact values** you need to set:
 1. Go to: https://vercel.com/jmanjw93s-projects/sports-app/89Spn3nUXysiYX1wBJVbqQDf3HdW
 2. Click **"Settings"** → **"Environment Variables"**
 3. Find or add `NEXT_PUBLIC_API_URL`
-4. Set value to your Render backend URL (check Render dashboard for exact URL):
+4. Set value to your Render backend URL:
    ```
    https://sports-app-ncya.onrender.com
    ```
-   (Replace with your actual Render URL - **NO trailing slash**)
+   (**NO trailing slash**)
 5. Make sure it's enabled for: ✅ Production, ✅ Preview, ✅ Development
 6. Click **"Save"**
 7. Go to **"Deployments"** tab
