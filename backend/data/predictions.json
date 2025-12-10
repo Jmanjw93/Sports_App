@@ -1,0 +1,1530 @@
+{
+  "nfl_1_1765506000_20251210_101928": {
+    "prediction_id": "nfl_1_1765506000_20251210_101928",
+    "game_id": "nfl_1_1765506000",
+    "sport": "nfl",
+    "home_team": "Tampa Bay Buccaneers",
+    "away_team": "Atlanta Falcons",
+    "predicted_winner": "Atlanta Falcons",
+    "actual_winner": null,
+    "home_win_probability": 0.491,
+    "away_win_probability": 0.509,
+    "confidence": 0.019,
+    "game_date": "2025-12-11T20:20:00",
+    "prediction_date": "2025-12-10T10:19:28.867997",
+    "outcome": "pending",
+    "factors": {
+      "weather": {
+        "original_home_prob": 0.43338800801895394,
+        "original_away_prob": 0.5666119919810461,
+        "adjusted_home_prob": 0.43338800801895394,
+        "adjusted_away_prob": 0.5666119919810461,
+        "weather": {
+          "temp": 72,
+          "feels_like": 72,
+          "humidity": 65,
+          "wind_speed": 8,
+          "wind_direction": 0,
+          "precipitation": 0,
+          "conditions": "clear",
+          "description": "clear",
+          "visibility": 10,
+          "pressure": 1013,
+          "is_forecast": true,
+          "forecast_date": "2025-12-11T20:20:00",
+          "location": "Tampa, FL"
+        },
+        "weather_impact": {
+          "overall_impact": "neutral",
+          "factors": [],
+          "severity": "low"
+        },
+        "adjustment_factor": 0
+      },
+      "injuries": {
+        "home_injury_impact": 0.0002642220060368595,
+        "away_injury_impact": 0.002063491141721668,
+        "adjustment": 0.0003598538271369617,
+        "home_key_injuries": [],
+        "away_key_injuries": [],
+        "impact_descriptions": {
+          "home": [
+            "Minor injury impact"
+          ],
+          "away": [
+            "Minor injury impact"
+          ]
+        }
+      },
+      "coaching": {
+        "home_coach": "Todd Bowles",
+        "away_coach": "Arthur Smith",
+        "adjustment_factor": 0.006,
+        "head_coach_adjustment": 0.024,
+        "coordinator_adjustment": -0.02,
+        "historical_record": {
+          "home_coach": "Todd Bowles",
+          "away_coach": "Arthur Smith",
+          "num_games": 8,
+          "home_coach_wins": 5,
+          "away_coach_wins": 3,
+          "home_coach_record": "5-3",
+          "away_coach_record": "3-5",
+          "home_coach_win_rate": 0.625,
+          "away_coach_win_rate": 0.375,
+          "avg_point_differential": 2.5,
+          "advantage": "home_coach",
+          "advantage_strength": "moderate",
+          "games": [
+            {
+              "game_date": "2022-09-25",
+              "home_score": 20,
+              "away_score": 21,
+              "winner": "home"
+            },
+            {
+              "game_date": "2023-10-09",
+              "home_score": 30,
+              "away_score": 35,
+              "winner": "home"
+            },
+            {
+              "game_date": "2024-09-15",
+              "home_score": 19,
+              "away_score": 27,
+              "winner": "home"
+            },
+            {
+              "game_date": "2024-11-16",
+              "home_score": 18,
+              "away_score": 34,
+              "winner": "away"
+            },
+            {
+              "game_date": "2020-12-15",
+              "home_score": 22,
+              "away_score": 34,
+              "winner": "away"
+            },
+            {
+              "game_date": "2023-09-17",
+              "home_score": 31,
+              "away_score": 23,
+              "winner": "home"
+            },
+            {
+              "game_date": "2024-11-23",
+              "home_score": 28,
+              "away_score": 29,
+              "winner": "away"
+            },
+            {
+              "game_date": "2020-12-22",
+              "home_score": 24,
+              "away_score": 27,
+              "winner": "home"
+            }
+          ],
+          "recent_trend": "home_coach",
+          "current_streak": {
+            "coach": "home",
+            "length": 1,
+            "description": null
+          }
+        },
+        "coordinator_matchup": {
+          "home_oc": "Dave Canales",
+          "away_dc": "Dean Pees",
+          "away_oc": "Dave Ragone",
+          "home_dc": "Todd Bowles",
+          "home_oc_vs_away_dc": {
+            "home_coach": "Dave Canales",
+            "away_coach": "Dean Pees",
+            "num_games": 6,
+            "home_coach_wins": 2,
+            "away_coach_wins": 4,
+            "home_coach_record": "2-4",
+            "away_coach_record": "4-2",
+            "home_coach_win_rate": 0.333,
+            "away_coach_win_rate": 0.667,
+            "avg_point_differential": 1.2,
+            "advantage": "away_coach",
+            "advantage_strength": "moderate",
+            "games": [
+              {
+                "game_date": "2022-11-23",
+                "home_score": 33,
+                "away_score": 19,
+                "winner": "home"
+              },
+              {
+                "game_date": "2024-10-03",
+                "home_score": 31,
+                "away_score": 25,
+                "winner": "away"
+              },
+              {
+                "game_date": "2020-11-03",
+                "home_score": 31,
+                "away_score": 26,
+                "winner": "away"
+              },
+              {
+                "game_date": "2023-12-04",
+                "home_score": 27,
+                "away_score": 27,
+                "winner": "away"
+              },
+              {
+                "game_date": "2021-11-25",
+                "home_score": 20,
+                "away_score": 32,
+                "winner": "home"
+              },
+              {
+                "game_date": "2024-09-01",
+                "home_score": 17,
+                "away_score": 33,
+                "winner": "away"
+              }
+            ],
+            "recent_trend": "away_coach",
+            "current_streak": {
+              "coach": "away",
+              "length": 1,
+              "description": null
+            }
+          },
+          "away_oc_vs_home_dc": {
+            "home_coach": "Dave Ragone",
+            "away_coach": "Todd Bowles",
+            "num_games": 2,
+            "home_coach_wins": 1,
+            "away_coach_wins": 1,
+            "home_coach_record": "1-1",
+            "away_coach_record": "1-1",
+            "home_coach_win_rate": 0.5,
+            "away_coach_win_rate": 0.5,
+            "avg_point_differential": 3,
+            "advantage": "neutral",
+            "advantage_strength": "none",
+            "games": [
+              {
+                "game_date": "2023-12-24",
+                "home_score": 27,
+                "away_score": 29,
+                "winner": "away"
+              },
+              {
+                "game_date": "2022-12-16",
+                "home_score": 23,
+                "away_score": 19,
+                "winner": "home"
+              }
+            ],
+            "recent_trend": "home_coach",
+            "current_streak": {
+              "coach": "home",
+              "length": 1,
+              "description": null
+            }
+          },
+          "adjustment_factor": -0.02,
+          "home_oc_insight": "Dean Pees has moderate advantage over Dave Canales (2-4 vs 4-2) - 67% success rate",
+          "away_oc_insight": "Away OC vs Home DC is historically even (1-1 vs 1-1) - 50% vs 50% in 2 games"
+        },
+        "key_insight": "Todd Bowles (Tampa Bay Buccaneers) has a moderate advantage (5-3 vs 3-5) - 62% win rate in 8 games | Coordinator Matchup: Dean Pees has moderate advantage over Dave Canales (2-4 vs 4-2) - 67% success rate"
+      },
+      "mental_health": {
+        "home_team": {
+          "overall_score": 0.84,
+          "team_chemistry": 0.8,
+          "morale": 0.85,
+          "pressure_handling": 0.65,
+          "impact_on_win_probability": 0.052,
+          "factors": [
+            "5-game winning streak",
+            "New coaching staff"
+          ],
+          "key_players": [
+            {
+              "player_name": "Tampa Bay Buccaneers Player 1",
+              "position": "QB",
+              "overall_score": 0.733,
+              "confidence_level": 0.95,
+              "stress_level": 0.45,
+              "focus_level": 0.6,
+              "motivation_level": 0.8,
+              "recent_trend": "improving",
+              "factors": [
+                "Strong recent performance boost",
+                "Recently signed contract",
+                "Family matters affecting focus",
+                "Veteran experience",
+                "High-pressure position"
+              ],
+              "impact_on_performance": 0.07
+            },
+            {
+              "player_name": "Tampa Bay Buccaneers Player 2",
+              "position": "WR",
+              "overall_score": 0.845,
+              "confidence_level": 0.95,
+              "stress_level": 0.15,
+              "focus_level": 0.75,
+              "motivation_level": 0.8,
+              "recent_trend": "improving",
+              "factors": [
+                "Strong recent performance boost",
+                "Recently signed contract",
+                "Young player, less experience"
+              ],
+              "impact_on_performance": 0.104
+            },
+            {
+              "player_name": "Tampa Bay Buccaneers Player 3",
+              "position": "WR",
+              "overall_score": 0.678,
+              "confidence_level": 0.6,
+              "stress_level": 0.4,
+              "focus_level": 0.75,
+              "motivation_level": 0.8,
+              "recent_trend": "declining",
+              "factors": [
+                "Recent performance decline",
+                "Recently signed contract",
+                "Young player, less experience"
+              ],
+              "impact_on_performance": 0.053
+            }
+          ]
+        },
+        "away_team": {
+          "overall_score": 0.791,
+          "team_chemistry": 0.75,
+          "morale": 0.75,
+          "pressure_handling": 0.65,
+          "impact_on_win_probability": 0.043,
+          "factors": [
+            "5-game winning streak",
+            "Coaching instability",
+            "High media scrutiny"
+          ],
+          "key_players": [
+            {
+              "player_name": "Atlanta Falcons Player 1",
+              "position": "TE",
+              "overall_score": 0.81,
+              "confidence_level": 0.85,
+              "stress_level": 0.25,
+              "focus_level": 0.75,
+              "motivation_level": 0.9,
+              "recent_trend": "stable",
+              "factors": [
+                "Recently signed contract",
+                "Positive personal developments",
+                "Veteran experience"
+              ],
+              "impact_on_performance": 0.093
+            },
+            {
+              "player_name": "Atlanta Falcons Player 2",
+              "position": "QB",
+              "overall_score": 0.573,
+              "confidence_level": 0.5,
+              "stress_level": 0.65,
+              "focus_level": 0.7,
+              "motivation_level": 0.8,
+              "recent_trend": "declining",
+              "factors": [
+                "Recent performance decline",
+                "Contract negotiations ongoing",
+                "High-pressure position"
+              ],
+              "impact_on_performance": 0.022
+            },
+            {
+              "player_name": "Atlanta Falcons Player 3",
+              "position": "WR",
+              "overall_score": 0.635,
+              "confidence_level": 0.5,
+              "stress_level": 0.45,
+              "focus_level": 0.75,
+              "motivation_level": 0.8,
+              "recent_trend": "declining",
+              "factors": [
+                "Recent performance decline"
+              ],
+              "impact_on_performance": 0.041
+            },
+            {
+              "player_name": "Atlanta Falcons Player 4",
+              "position": "LB",
+              "overall_score": 0.695,
+              "confidence_level": 0.7,
+              "stress_level": 0.4,
+              "focus_level": 0.7,
+              "motivation_level": 0.8,
+              "recent_trend": "stable",
+              "factors": [
+                "Contract negotiations ongoing"
+              ],
+              "impact_on_performance": 0.058
+            }
+          ]
+        },
+        "net_adjustment": 0.009,
+        "summary": "Mental health factors are relatively balanced between teams"
+      }
+    },
+    "score": null,
+    "error_analysis": null,
+    "locked": true,
+    "locked_date": "2025-12-10T10:19:28.867997",
+    "full_prediction_data": {
+      "game_id": "nfl_1_1765506000",
+      "home_team": "Tampa Bay Buccaneers",
+      "away_team": "Atlanta Falcons",
+      "predicted_winner": "Atlanta Falcons",
+      "home_win_probability": 0.491,
+      "away_win_probability": 0.509,
+      "confidence": 0.019,
+      "weather_impact": {
+        "original_home_prob": 0.43338800801895394,
+        "original_away_prob": 0.5666119919810461,
+        "adjusted_home_prob": 0.43338800801895394,
+        "adjusted_away_prob": 0.5666119919810461,
+        "weather": {
+          "temp": 72,
+          "feels_like": 72,
+          "humidity": 65,
+          "wind_speed": 8,
+          "wind_direction": 0,
+          "precipitation": 0,
+          "conditions": "clear",
+          "description": "clear",
+          "visibility": 10,
+          "pressure": 1013,
+          "is_forecast": true,
+          "forecast_date": "2025-12-11T20:20:00",
+          "location": "Tampa, FL"
+        },
+        "weather_impact": {
+          "overall_impact": "neutral",
+          "factors": [],
+          "severity": "low"
+        },
+        "adjustment_factor": 0
+      },
+      "injury_impact": {
+        "home_injury_impact": 0.0002642220060368595,
+        "away_injury_impact": 0.002063491141721668,
+        "adjustment": 0.0003598538271369617,
+        "home_key_injuries": [],
+        "away_key_injuries": [],
+        "impact_descriptions": {
+          "home": [
+            "Minor injury impact"
+          ],
+          "away": [
+            "Minor injury impact"
+          ]
+        }
+      },
+      "coaching_impact": {
+        "home_coach": "Todd Bowles",
+        "away_coach": "Arthur Smith",
+        "adjustment_factor": 0.006,
+        "head_coach_adjustment": 0.024,
+        "coordinator_adjustment": -0.02,
+        "historical_record": {
+          "home_coach": "Todd Bowles",
+          "away_coach": "Arthur Smith",
+          "num_games": 8,
+          "home_coach_wins": 5,
+          "away_coach_wins": 3,
+          "home_coach_record": "5-3",
+          "away_coach_record": "3-5",
+          "home_coach_win_rate": 0.625,
+          "away_coach_win_rate": 0.375,
+          "avg_point_differential": 2.5,
+          "advantage": "home_coach",
+          "advantage_strength": "moderate",
+          "games": [
+            {
+              "game_date": "2022-09-25",
+              "home_score": 20,
+              "away_score": 21,
+              "winner": "home"
+            },
+            {
+              "game_date": "2023-10-09",
+              "home_score": 30,
+              "away_score": 35,
+              "winner": "home"
+            },
+            {
+              "game_date": "2024-09-15",
+              "home_score": 19,
+              "away_score": 27,
+              "winner": "home"
+            },
+            {
+              "game_date": "2024-11-16",
+              "home_score": 18,
+              "away_score": 34,
+              "winner": "away"
+            },
+            {
+              "game_date": "2020-12-15",
+              "home_score": 22,
+              "away_score": 34,
+              "winner": "away"
+            },
+            {
+              "game_date": "2023-09-17",
+              "home_score": 31,
+              "away_score": 23,
+              "winner": "home"
+            },
+            {
+              "game_date": "2024-11-23",
+              "home_score": 28,
+              "away_score": 29,
+              "winner": "away"
+            },
+            {
+              "game_date": "2020-12-22",
+              "home_score": 24,
+              "away_score": 27,
+              "winner": "home"
+            }
+          ],
+          "recent_trend": "home_coach",
+          "current_streak": {
+            "coach": "home",
+            "length": 1,
+            "description": null
+          }
+        },
+        "coordinator_matchup": {
+          "home_oc": "Dave Canales",
+          "away_dc": "Dean Pees",
+          "away_oc": "Dave Ragone",
+          "home_dc": "Todd Bowles",
+          "home_oc_vs_away_dc": {
+            "home_coach": "Dave Canales",
+            "away_coach": "Dean Pees",
+            "num_games": 6,
+            "home_coach_wins": 2,
+            "away_coach_wins": 4,
+            "home_coach_record": "2-4",
+            "away_coach_record": "4-2",
+            "home_coach_win_rate": 0.333,
+            "away_coach_win_rate": 0.667,
+            "avg_point_differential": 1.2,
+            "advantage": "away_coach",
+            "advantage_strength": "moderate",
+            "games": [
+              {
+                "game_date": "2022-11-23",
+                "home_score": 33,
+                "away_score": 19,
+                "winner": "home"
+              },
+              {
+                "game_date": "2024-10-03",
+                "home_score": 31,
+                "away_score": 25,
+                "winner": "away"
+              },
+              {
+                "game_date": "2020-11-03",
+                "home_score": 31,
+                "away_score": 26,
+                "winner": "away"
+              },
+              {
+                "game_date": "2023-12-04",
+                "home_score": 27,
+                "away_score": 27,
+                "winner": "away"
+              },
+              {
+                "game_date": "2021-11-25",
+                "home_score": 20,
+                "away_score": 32,
+                "winner": "home"
+              },
+              {
+                "game_date": "2024-09-01",
+                "home_score": 17,
+                "away_score": 33,
+                "winner": "away"
+              }
+            ],
+            "recent_trend": "away_coach",
+            "current_streak": {
+              "coach": "away",
+              "length": 1,
+              "description": null
+            }
+          },
+          "away_oc_vs_home_dc": {
+            "home_coach": "Dave Ragone",
+            "away_coach": "Todd Bowles",
+            "num_games": 2,
+            "home_coach_wins": 1,
+            "away_coach_wins": 1,
+            "home_coach_record": "1-1",
+            "away_coach_record": "1-1",
+            "home_coach_win_rate": 0.5,
+            "away_coach_win_rate": 0.5,
+            "avg_point_differential": 3,
+            "advantage": "neutral",
+            "advantage_strength": "none",
+            "games": [
+              {
+                "game_date": "2023-12-24",
+                "home_score": 27,
+                "away_score": 29,
+                "winner": "away"
+              },
+              {
+                "game_date": "2022-12-16",
+                "home_score": 23,
+                "away_score": 19,
+                "winner": "home"
+              }
+            ],
+            "recent_trend": "home_coach",
+            "current_streak": {
+              "coach": "home",
+              "length": 1,
+              "description": null
+            }
+          },
+          "adjustment_factor": -0.02,
+          "home_oc_insight": "Dean Pees has moderate advantage over Dave Canales (2-4 vs 4-2) - 67% success rate",
+          "away_oc_insight": "Away OC vs Home DC is historically even (1-1 vs 1-1) - 50% vs 50% in 2 games"
+        },
+        "key_insight": "Todd Bowles (Tampa Bay Buccaneers) has a moderate advantage (5-3 vs 3-5) - 62% win rate in 8 games | Coordinator Matchup: Dean Pees has moderate advantage over Dave Canales (2-4 vs 4-2) - 67% success rate"
+      },
+      "mental_health_impact": {
+        "home_team": {
+          "overall_score": 0.84,
+          "team_chemistry": 0.8,
+          "morale": 0.85,
+          "pressure_handling": 0.65,
+          "impact_on_win_probability": 0.052,
+          "factors": [
+            "5-game winning streak",
+            "New coaching staff"
+          ],
+          "key_players": [
+            {
+              "player_name": "Tampa Bay Buccaneers Player 1",
+              "position": "QB",
+              "overall_score": 0.733,
+              "confidence_level": 0.95,
+              "stress_level": 0.45,
+              "focus_level": 0.6,
+              "motivation_level": 0.8,
+              "recent_trend": "improving",
+              "factors": [
+                "Strong recent performance boost",
+                "Recently signed contract",
+                "Family matters affecting focus",
+                "Veteran experience",
+                "High-pressure position"
+              ],
+              "impact_on_performance": 0.07
+            },
+            {
+              "player_name": "Tampa Bay Buccaneers Player 2",
+              "position": "WR",
+              "overall_score": 0.845,
+              "confidence_level": 0.95,
+              "stress_level": 0.15,
+              "focus_level": 0.75,
+              "motivation_level": 0.8,
+              "recent_trend": "improving",
+              "factors": [
+                "Strong recent performance boost",
+                "Recently signed contract",
+                "Young player, less experience"
+              ],
+              "impact_on_performance": 0.104
+            },
+            {
+              "player_name": "Tampa Bay Buccaneers Player 3",
+              "position": "WR",
+              "overall_score": 0.678,
+              "confidence_level": 0.6,
+              "stress_level": 0.4,
+              "focus_level": 0.75,
+              "motivation_level": 0.8,
+              "recent_trend": "declining",
+              "factors": [
+                "Recent performance decline",
+                "Recently signed contract",
+                "Young player, less experience"
+              ],
+              "impact_on_performance": 0.053
+            }
+          ]
+        },
+        "away_team": {
+          "overall_score": 0.791,
+          "team_chemistry": 0.75,
+          "morale": 0.75,
+          "pressure_handling": 0.65,
+          "impact_on_win_probability": 0.043,
+          "factors": [
+            "5-game winning streak",
+            "Coaching instability",
+            "High media scrutiny"
+          ],
+          "key_players": [
+            {
+              "player_name": "Atlanta Falcons Player 1",
+              "position": "TE",
+              "overall_score": 0.81,
+              "confidence_level": 0.85,
+              "stress_level": 0.25,
+              "focus_level": 0.75,
+              "motivation_level": 0.9,
+              "recent_trend": "stable",
+              "factors": [
+                "Recently signed contract",
+                "Positive personal developments",
+                "Veteran experience"
+              ],
+              "impact_on_performance": 0.093
+            },
+            {
+              "player_name": "Atlanta Falcons Player 2",
+              "position": "QB",
+              "overall_score": 0.573,
+              "confidence_level": 0.5,
+              "stress_level": 0.65,
+              "focus_level": 0.7,
+              "motivation_level": 0.8,
+              "recent_trend": "declining",
+              "factors": [
+                "Recent performance decline",
+                "Contract negotiations ongoing",
+                "High-pressure position"
+              ],
+              "impact_on_performance": 0.022
+            },
+            {
+              "player_name": "Atlanta Falcons Player 3",
+              "position": "WR",
+              "overall_score": 0.635,
+              "confidence_level": 0.5,
+              "stress_level": 0.45,
+              "focus_level": 0.75,
+              "motivation_level": 0.8,
+              "recent_trend": "declining",
+              "factors": [
+                "Recent performance decline"
+              ],
+              "impact_on_performance": 0.041
+            },
+            {
+              "player_name": "Atlanta Falcons Player 4",
+              "position": "LB",
+              "overall_score": 0.695,
+              "confidence_level": 0.7,
+              "stress_level": 0.4,
+              "focus_level": 0.7,
+              "motivation_level": 0.8,
+              "recent_trend": "stable",
+              "factors": [
+                "Contract negotiations ongoing"
+              ],
+              "impact_on_performance": 0.058
+            }
+          ]
+        },
+        "net_adjustment": 0.009,
+        "summary": "Mental health factors are relatively balanced between teams"
+      },
+      "key_factors": [
+        "Coaching Matchup: Todd Bowles (Tampa Bay Buccaneers) has a moderate advantage (5-3 vs 3-5) - 62% win rate in 8 games | Coordinator Matchup: Dean Pees has moderate advantage over Dave Canales (2-4 vs 4-2) - 67% success rate",
+        "Home team key players have favorable historical matchups (+4.2% advantage)"
+      ],
+      "player_prop_adjustment": {
+        "home_advantage": 0.115,
+        "away_advantage": 0.073,
+        "net_adjustment": 0.042,
+        "adjustment_applied": true
+      }
+    }
+  },
+  "nfl_1_1765506000_20251210_102455": {
+    "prediction_id": "nfl_1_1765506000_20251210_102455",
+    "game_id": "nfl_1_1765506000",
+    "sport": "nfl",
+    "home_team": "Tampa Bay Buccaneers",
+    "away_team": "Atlanta Falcons",
+    "predicted_winner": "Atlanta Falcons",
+    "actual_winner": null,
+    "home_win_probability": 0.491,
+    "away_win_probability": 0.509,
+    "confidence": 0.019,
+    "game_date": "2025-12-11T20:20:00",
+    "prediction_date": "2025-12-10T10:24:55.980025",
+    "outcome": "pending",
+    "factors": {
+      "weather": {
+        "original_home_prob": 0.43338800801895394,
+        "original_away_prob": 0.5666119919810461,
+        "adjusted_home_prob": 0.43338800801895394,
+        "adjusted_away_prob": 0.5666119919810461,
+        "weather": {
+          "temp": 72,
+          "feels_like": 72,
+          "humidity": 65,
+          "wind_speed": 8,
+          "wind_direction": 0,
+          "precipitation": 0,
+          "conditions": "clear",
+          "description": "clear",
+          "visibility": 10,
+          "pressure": 1013,
+          "is_forecast": true,
+          "forecast_date": "2025-12-11T20:20:00",
+          "location": "Tampa, FL"
+        },
+        "weather_impact": {
+          "overall_impact": "neutral",
+          "factors": [],
+          "severity": "low"
+        },
+        "adjustment_factor": 0
+      },
+      "injuries": {
+        "home_injury_impact": 0.0002642220060368595,
+        "away_injury_impact": 0.002063491141721668,
+        "adjustment": 0.0003598538271369617,
+        "home_key_injuries": [],
+        "away_key_injuries": [],
+        "impact_descriptions": {
+          "home": [
+            "Minor injury impact"
+          ],
+          "away": [
+            "Minor injury impact"
+          ]
+        }
+      },
+      "coaching": {
+        "home_coach": "Todd Bowles",
+        "away_coach": "Arthur Smith",
+        "adjustment_factor": 0.006,
+        "head_coach_adjustment": 0.024,
+        "coordinator_adjustment": -0.02,
+        "historical_record": {
+          "home_coach": "Todd Bowles",
+          "away_coach": "Arthur Smith",
+          "num_games": 8,
+          "home_coach_wins": 5,
+          "away_coach_wins": 3,
+          "home_coach_record": "5-3",
+          "away_coach_record": "3-5",
+          "home_coach_win_rate": 0.625,
+          "away_coach_win_rate": 0.375,
+          "avg_point_differential": 2.5,
+          "advantage": "home_coach",
+          "advantage_strength": "moderate",
+          "games": [
+            {
+              "game_date": "2022-09-25",
+              "home_score": 20,
+              "away_score": 21,
+              "winner": "home"
+            },
+            {
+              "game_date": "2023-10-09",
+              "home_score": 30,
+              "away_score": 35,
+              "winner": "home"
+            },
+            {
+              "game_date": "2024-09-15",
+              "home_score": 19,
+              "away_score": 27,
+              "winner": "home"
+            },
+            {
+              "game_date": "2024-11-16",
+              "home_score": 18,
+              "away_score": 34,
+              "winner": "away"
+            },
+            {
+              "game_date": "2020-12-15",
+              "home_score": 22,
+              "away_score": 34,
+              "winner": "away"
+            },
+            {
+              "game_date": "2023-09-17",
+              "home_score": 31,
+              "away_score": 23,
+              "winner": "home"
+            },
+            {
+              "game_date": "2024-11-23",
+              "home_score": 28,
+              "away_score": 29,
+              "winner": "away"
+            },
+            {
+              "game_date": "2020-12-22",
+              "home_score": 24,
+              "away_score": 27,
+              "winner": "home"
+            }
+          ],
+          "recent_trend": "home_coach",
+          "current_streak": {
+            "coach": "home",
+            "length": 1,
+            "description": null
+          }
+        },
+        "coordinator_matchup": {
+          "home_oc": "Dave Canales",
+          "away_dc": "Dean Pees",
+          "away_oc": "Dave Ragone",
+          "home_dc": "Todd Bowles",
+          "home_oc_vs_away_dc": {
+            "home_coach": "Dave Canales",
+            "away_coach": "Dean Pees",
+            "num_games": 6,
+            "home_coach_wins": 2,
+            "away_coach_wins": 4,
+            "home_coach_record": "2-4",
+            "away_coach_record": "4-2",
+            "home_coach_win_rate": 0.333,
+            "away_coach_win_rate": 0.667,
+            "avg_point_differential": 1.2,
+            "advantage": "away_coach",
+            "advantage_strength": "moderate",
+            "games": [
+              {
+                "game_date": "2022-11-23",
+                "home_score": 33,
+                "away_score": 19,
+                "winner": "home"
+              },
+              {
+                "game_date": "2024-10-03",
+                "home_score": 31,
+                "away_score": 25,
+                "winner": "away"
+              },
+              {
+                "game_date": "2020-11-03",
+                "home_score": 31,
+                "away_score": 26,
+                "winner": "away"
+              },
+              {
+                "game_date": "2023-12-04",
+                "home_score": 27,
+                "away_score": 27,
+                "winner": "away"
+              },
+              {
+                "game_date": "2021-11-25",
+                "home_score": 20,
+                "away_score": 32,
+                "winner": "home"
+              },
+              {
+                "game_date": "2024-09-01",
+                "home_score": 17,
+                "away_score": 33,
+                "winner": "away"
+              }
+            ],
+            "recent_trend": "away_coach",
+            "current_streak": {
+              "coach": "away",
+              "length": 1,
+              "description": null
+            }
+          },
+          "away_oc_vs_home_dc": {
+            "home_coach": "Dave Ragone",
+            "away_coach": "Todd Bowles",
+            "num_games": 2,
+            "home_coach_wins": 1,
+            "away_coach_wins": 1,
+            "home_coach_record": "1-1",
+            "away_coach_record": "1-1",
+            "home_coach_win_rate": 0.5,
+            "away_coach_win_rate": 0.5,
+            "avg_point_differential": 3,
+            "advantage": "neutral",
+            "advantage_strength": "none",
+            "games": [
+              {
+                "game_date": "2023-12-24",
+                "home_score": 27,
+                "away_score": 29,
+                "winner": "away"
+              },
+              {
+                "game_date": "2022-12-16",
+                "home_score": 23,
+                "away_score": 19,
+                "winner": "home"
+              }
+            ],
+            "recent_trend": "home_coach",
+            "current_streak": {
+              "coach": "home",
+              "length": 1,
+              "description": null
+            }
+          },
+          "adjustment_factor": -0.02,
+          "home_oc_insight": "Dean Pees has moderate advantage over Dave Canales (2-4 vs 4-2) - 67% success rate",
+          "away_oc_insight": "Away OC vs Home DC is historically even (1-1 vs 1-1) - 50% vs 50% in 2 games"
+        },
+        "key_insight": "Todd Bowles (Tampa Bay Buccaneers) has a moderate advantage (5-3 vs 3-5) - 62% win rate in 8 games | Coordinator Matchup: Dean Pees has moderate advantage over Dave Canales (2-4 vs 4-2) - 67% success rate"
+      },
+      "mental_health": {
+        "home_team": {
+          "overall_score": 0.84,
+          "team_chemistry": 0.8,
+          "morale": 0.85,
+          "pressure_handling": 0.65,
+          "impact_on_win_probability": 0.052,
+          "factors": [
+            "5-game winning streak",
+            "New coaching staff"
+          ],
+          "key_players": [
+            {
+              "player_name": "Tampa Bay Buccaneers Player 1",
+              "position": "QB",
+              "overall_score": 0.733,
+              "confidence_level": 0.95,
+              "stress_level": 0.45,
+              "focus_level": 0.6,
+              "motivation_level": 0.8,
+              "recent_trend": "improving",
+              "factors": [
+                "Strong recent performance boost",
+                "Recently signed contract",
+                "Family matters affecting focus",
+                "Veteran experience",
+                "High-pressure position"
+              ],
+              "impact_on_performance": 0.07
+            },
+            {
+              "player_name": "Tampa Bay Buccaneers Player 2",
+              "position": "WR",
+              "overall_score": 0.845,
+              "confidence_level": 0.95,
+              "stress_level": 0.15,
+              "focus_level": 0.75,
+              "motivation_level": 0.8,
+              "recent_trend": "improving",
+              "factors": [
+                "Strong recent performance boost",
+                "Recently signed contract",
+                "Young player, less experience"
+              ],
+              "impact_on_performance": 0.104
+            },
+            {
+              "player_name": "Tampa Bay Buccaneers Player 3",
+              "position": "WR",
+              "overall_score": 0.678,
+              "confidence_level": 0.6,
+              "stress_level": 0.4,
+              "focus_level": 0.75,
+              "motivation_level": 0.8,
+              "recent_trend": "declining",
+              "factors": [
+                "Recent performance decline",
+                "Recently signed contract",
+                "Young player, less experience"
+              ],
+              "impact_on_performance": 0.053
+            }
+          ]
+        },
+        "away_team": {
+          "overall_score": 0.791,
+          "team_chemistry": 0.75,
+          "morale": 0.75,
+          "pressure_handling": 0.65,
+          "impact_on_win_probability": 0.043,
+          "factors": [
+            "5-game winning streak",
+            "Coaching instability",
+            "High media scrutiny"
+          ],
+          "key_players": [
+            {
+              "player_name": "Atlanta Falcons Player 1",
+              "position": "TE",
+              "overall_score": 0.81,
+              "confidence_level": 0.85,
+              "stress_level": 0.25,
+              "focus_level": 0.75,
+              "motivation_level": 0.9,
+              "recent_trend": "stable",
+              "factors": [
+                "Recently signed contract",
+                "Positive personal developments",
+                "Veteran experience"
+              ],
+              "impact_on_performance": 0.093
+            },
+            {
+              "player_name": "Atlanta Falcons Player 2",
+              "position": "QB",
+              "overall_score": 0.573,
+              "confidence_level": 0.5,
+              "stress_level": 0.65,
+              "focus_level": 0.7,
+              "motivation_level": 0.8,
+              "recent_trend": "declining",
+              "factors": [
+                "Recent performance decline",
+                "Contract negotiations ongoing",
+                "High-pressure position"
+              ],
+              "impact_on_performance": 0.022
+            },
+            {
+              "player_name": "Atlanta Falcons Player 3",
+              "position": "WR",
+              "overall_score": 0.635,
+              "confidence_level": 0.5,
+              "stress_level": 0.45,
+              "focus_level": 0.75,
+              "motivation_level": 0.8,
+              "recent_trend": "declining",
+              "factors": [
+                "Recent performance decline"
+              ],
+              "impact_on_performance": 0.041
+            },
+            {
+              "player_name": "Atlanta Falcons Player 4",
+              "position": "LB",
+              "overall_score": 0.695,
+              "confidence_level": 0.7,
+              "stress_level": 0.4,
+              "focus_level": 0.7,
+              "motivation_level": 0.8,
+              "recent_trend": "stable",
+              "factors": [
+                "Contract negotiations ongoing"
+              ],
+              "impact_on_performance": 0.058
+            }
+          ]
+        },
+        "net_adjustment": 0.009,
+        "summary": "Mental health factors are relatively balanced between teams"
+      }
+    },
+    "score": null,
+    "error_analysis": null,
+    "locked": true,
+    "locked_date": "2025-12-10T10:24:55.980025",
+    "full_prediction_data": {
+      "game_id": "nfl_1_1765506000",
+      "home_team": "Tampa Bay Buccaneers",
+      "away_team": "Atlanta Falcons",
+      "predicted_winner": "Atlanta Falcons",
+      "home_win_probability": 0.491,
+      "away_win_probability": 0.509,
+      "confidence": 0.019,
+      "weather_impact": {
+        "original_home_prob": 0.43338800801895394,
+        "original_away_prob": 0.5666119919810461,
+        "adjusted_home_prob": 0.43338800801895394,
+        "adjusted_away_prob": 0.5666119919810461,
+        "weather": {
+          "temp": 72,
+          "feels_like": 72,
+          "humidity": 65,
+          "wind_speed": 8,
+          "wind_direction": 0,
+          "precipitation": 0,
+          "conditions": "clear",
+          "description": "clear",
+          "visibility": 10,
+          "pressure": 1013,
+          "is_forecast": true,
+          "forecast_date": "2025-12-11T20:20:00",
+          "location": "Tampa, FL"
+        },
+        "weather_impact": {
+          "overall_impact": "neutral",
+          "factors": [],
+          "severity": "low"
+        },
+        "adjustment_factor": 0
+      },
+      "injury_impact": {
+        "home_injury_impact": 0.0002642220060368595,
+        "away_injury_impact": 0.002063491141721668,
+        "adjustment": 0.0003598538271369617,
+        "home_key_injuries": [],
+        "away_key_injuries": [],
+        "impact_descriptions": {
+          "home": [
+            "Minor injury impact"
+          ],
+          "away": [
+            "Minor injury impact"
+          ]
+        }
+      },
+      "coaching_impact": {
+        "home_coach": "Todd Bowles",
+        "away_coach": "Arthur Smith",
+        "adjustment_factor": 0.006,
+        "head_coach_adjustment": 0.024,
+        "coordinator_adjustment": -0.02,
+        "historical_record": {
+          "home_coach": "Todd Bowles",
+          "away_coach": "Arthur Smith",
+          "num_games": 8,
+          "home_coach_wins": 5,
+          "away_coach_wins": 3,
+          "home_coach_record": "5-3",
+          "away_coach_record": "3-5",
+          "home_coach_win_rate": 0.625,
+          "away_coach_win_rate": 0.375,
+          "avg_point_differential": 2.5,
+          "advantage": "home_coach",
+          "advantage_strength": "moderate",
+          "games": [
+            {
+              "game_date": "2022-09-25",
+              "home_score": 20,
+              "away_score": 21,
+              "winner": "home"
+            },
+            {
+              "game_date": "2023-10-09",
+              "home_score": 30,
+              "away_score": 35,
+              "winner": "home"
+            },
+            {
+              "game_date": "2024-09-15",
+              "home_score": 19,
+              "away_score": 27,
+              "winner": "home"
+            },
+            {
+              "game_date": "2024-11-16",
+              "home_score": 18,
+              "away_score": 34,
+              "winner": "away"
+            },
+            {
+              "game_date": "2020-12-15",
+              "home_score": 22,
+              "away_score": 34,
+              "winner": "away"
+            },
+            {
+              "game_date": "2023-09-17",
+              "home_score": 31,
+              "away_score": 23,
+              "winner": "home"
+            },
+            {
+              "game_date": "2024-11-23",
+              "home_score": 28,
+              "away_score": 29,
+              "winner": "away"
+            },
+            {
+              "game_date": "2020-12-22",
+              "home_score": 24,
+              "away_score": 27,
+              "winner": "home"
+            }
+          ],
+          "recent_trend": "home_coach",
+          "current_streak": {
+            "coach": "home",
+            "length": 1,
+            "description": null
+          }
+        },
+        "coordinator_matchup": {
+          "home_oc": "Dave Canales",
+          "away_dc": "Dean Pees",
+          "away_oc": "Dave Ragone",
+          "home_dc": "Todd Bowles",
+          "home_oc_vs_away_dc": {
+            "home_coach": "Dave Canales",
+            "away_coach": "Dean Pees",
+            "num_games": 6,
+            "home_coach_wins": 2,
+            "away_coach_wins": 4,
+            "home_coach_record": "2-4",
+            "away_coach_record": "4-2",
+            "home_coach_win_rate": 0.333,
+            "away_coach_win_rate": 0.667,
+            "avg_point_differential": 1.2,
+            "advantage": "away_coach",
+            "advantage_strength": "moderate",
+            "games": [
+              {
+                "game_date": "2022-11-23",
+                "home_score": 33,
+                "away_score": 19,
+                "winner": "home"
+              },
+              {
+                "game_date": "2024-10-03",
+                "home_score": 31,
+                "away_score": 25,
+                "winner": "away"
+              },
+              {
+                "game_date": "2020-11-03",
+                "home_score": 31,
+                "away_score": 26,
+                "winner": "away"
+              },
+              {
+                "game_date": "2023-12-04",
+                "home_score": 27,
+                "away_score": 27,
+                "winner": "away"
+              },
+              {
+                "game_date": "2021-11-25",
+                "home_score": 20,
+                "away_score": 32,
+                "winner": "home"
+              },
+              {
+                "game_date": "2024-09-01",
+                "home_score": 17,
+                "away_score": 33,
+                "winner": "away"
+              }
+            ],
+            "recent_trend": "away_coach",
+            "current_streak": {
+              "coach": "away",
+              "length": 1,
+              "description": null
+            }
+          },
+          "away_oc_vs_home_dc": {
+            "home_coach": "Dave Ragone",
+            "away_coach": "Todd Bowles",
+            "num_games": 2,
+            "home_coach_wins": 1,
+            "away_coach_wins": 1,
+            "home_coach_record": "1-1",
+            "away_coach_record": "1-1",
+            "home_coach_win_rate": 0.5,
+            "away_coach_win_rate": 0.5,
+            "avg_point_differential": 3,
+            "advantage": "neutral",
+            "advantage_strength": "none",
+            "games": [
+              {
+                "game_date": "2023-12-24",
+                "home_score": 27,
+                "away_score": 29,
+                "winner": "away"
+              },
+              {
+                "game_date": "2022-12-16",
+                "home_score": 23,
+                "away_score": 19,
+                "winner": "home"
+              }
+            ],
+            "recent_trend": "home_coach",
+            "current_streak": {
+              "coach": "home",
+              "length": 1,
+              "description": null
+            }
+          },
+          "adjustment_factor": -0.02,
+          "home_oc_insight": "Dean Pees has moderate advantage over Dave Canales (2-4 vs 4-2) - 67% success rate",
+          "away_oc_insight": "Away OC vs Home DC is historically even (1-1 vs 1-1) - 50% vs 50% in 2 games"
+        },
+        "key_insight": "Todd Bowles (Tampa Bay Buccaneers) has a moderate advantage (5-3 vs 3-5) - 62% win rate in 8 games | Coordinator Matchup: Dean Pees has moderate advantage over Dave Canales (2-4 vs 4-2) - 67% success rate"
+      },
+      "mental_health_impact": {
+        "home_team": {
+          "overall_score": 0.84,
+          "team_chemistry": 0.8,
+          "morale": 0.85,
+          "pressure_handling": 0.65,
+          "impact_on_win_probability": 0.052,
+          "factors": [
+            "5-game winning streak",
+            "New coaching staff"
+          ],
+          "key_players": [
+            {
+              "player_name": "Tampa Bay Buccaneers Player 1",
+              "position": "QB",
+              "overall_score": 0.733,
+              "confidence_level": 0.95,
+              "stress_level": 0.45,
+              "focus_level": 0.6,
+              "motivation_level": 0.8,
+              "recent_trend": "improving",
+              "factors": [
+                "Strong recent performance boost",
+                "Recently signed contract",
+                "Family matters affecting focus",
+                "Veteran experience",
+                "High-pressure position"
+              ],
+              "impact_on_performance": 0.07
+            },
+            {
+              "player_name": "Tampa Bay Buccaneers Player 2",
+              "position": "WR",
+              "overall_score": 0.845,
+              "confidence_level": 0.95,
+              "stress_level": 0.15,
+              "focus_level": 0.75,
+              "motivation_level": 0.8,
+              "recent_trend": "improving",
+              "factors": [
+                "Strong recent performance boost",
+                "Recently signed contract",
+                "Young player, less experience"
+              ],
+              "impact_on_performance": 0.104
+            },
+            {
+              "player_name": "Tampa Bay Buccaneers Player 3",
+              "position": "WR",
+              "overall_score": 0.678,
+              "confidence_level": 0.6,
+              "stress_level": 0.4,
+              "focus_level": 0.75,
+              "motivation_level": 0.8,
+              "recent_trend": "declining",
+              "factors": [
+                "Recent performance decline",
+                "Recently signed contract",
+                "Young player, less experience"
+              ],
+              "impact_on_performance": 0.053
+            }
+          ]
+        },
+        "away_team": {
+          "overall_score": 0.791,
+          "team_chemistry": 0.75,
+          "morale": 0.75,
+          "pressure_handling": 0.65,
+          "impact_on_win_probability": 0.043,
+          "factors": [
+            "5-game winning streak",
+            "Coaching instability",
+            "High media scrutiny"
+          ],
+          "key_players": [
+            {
+              "player_name": "Atlanta Falcons Player 1",
+              "position": "TE",
+              "overall_score": 0.81,
+              "confidence_level": 0.85,
+              "stress_level": 0.25,
+              "focus_level": 0.75,
+              "motivation_level": 0.9,
+              "recent_trend": "stable",
+              "factors": [
+                "Recently signed contract",
+                "Positive personal developments",
+                "Veteran experience"
+              ],
+              "impact_on_performance": 0.093
+            },
+            {
+              "player_name": "Atlanta Falcons Player 2",
+              "position": "QB",
+              "overall_score": 0.573,
+              "confidence_level": 0.5,
+              "stress_level": 0.65,
+              "focus_level": 0.7,
+              "motivation_level": 0.8,
+              "recent_trend": "declining",
+              "factors": [
+                "Recent performance decline",
+                "Contract negotiations ongoing",
+                "High-pressure position"
+              ],
+              "impact_on_performance": 0.022
+            },
+            {
+              "player_name": "Atlanta Falcons Player 3",
+              "position": "WR",
+              "overall_score": 0.635,
+              "confidence_level": 0.5,
+              "stress_level": 0.45,
+              "focus_level": 0.75,
+              "motivation_level": 0.8,
+              "recent_trend": "declining",
+              "factors": [
+                "Recent performance decline"
+              ],
+              "impact_on_performance": 0.041
+            },
+            {
+              "player_name": "Atlanta Falcons Player 4",
+              "position": "LB",
+              "overall_score": 0.695,
+              "confidence_level": 0.7,
+              "stress_level": 0.4,
+              "focus_level": 0.7,
+              "motivation_level": 0.8,
+              "recent_trend": "stable",
+              "factors": [
+                "Contract negotiations ongoing"
+              ],
+              "impact_on_performance": 0.058
+            }
+          ]
+        },
+        "net_adjustment": 0.009,
+        "summary": "Mental health factors are relatively balanced between teams"
+      },
+      "key_factors": [
+        "Coaching Matchup: Todd Bowles (Tampa Bay Buccaneers) has a moderate advantage (5-3 vs 3-5) - 62% win rate in 8 games | Coordinator Matchup: Dean Pees has moderate advantage over Dave Canales (2-4 vs 4-2) - 67% success rate",
+        "Home team key players have favorable historical matchups (+4.2% advantage)"
+      ],
+      "player_prop_adjustment": {
+        "home_advantage": 0.115,
+        "away_advantage": 0.073,
+        "net_adjustment": 0.042,
+        "adjustment_applied": true
+      }
+    }
+  }
+}

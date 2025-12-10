@@ -67,7 +67,7 @@ class FlexibleCORSMiddleware(BaseHTTPMiddleware):
 app.add_middleware(FlexibleCORSMiddleware)
 
 # make sure this is ABOVE your router includes
-from app.routers import games, predictions, odds, bets, player_props, simulations, parlays, learning
+from app.routers import games, predictions, odds, bets, player_props, simulations, parlays, learning, player_comparison
 
 # Include routers
 app.include_router(games.router, prefix="/api/games", tags=["games"])
@@ -78,6 +78,7 @@ app.include_router(player_props.router, prefix="/api/player-props", tags=["playe
 app.include_router(simulations.router, prefix="/api/simulations", tags=["simulations"])
 app.include_router(parlays.router, prefix="/api/parlays", tags=["parlays"])
 app.include_router(learning.router, prefix="/api/learning", tags=["learning"])
+app.include_router(player_comparison.router, prefix="/api/player-comparison", tags=["player-comparison"])
 
 
 @app.get("/")
