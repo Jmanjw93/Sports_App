@@ -37,9 +37,9 @@ class HistoricalMatchupAnalyzer:
         # In production, this would query historical game logs
         # For now, generate realistic mock data based on player and team
         
-        # Create a deterministic seed based on player and team names
-        # This ensures consistent results for the same matchup
-        seed = hash(f"{player_name}_{opponent_team}_{prop_type}") % 1000
+        # Create deterministic seed based on player and team names using consistent hash
+        coach_str = f"{player_name}_{opponent_team}_{prop_type}_{sport}"
+        seed = sum(ord(c) * (i + 1) for i, c in enumerate(coach_str)) % 10000
         random.seed(seed)
         
         # Generate historical matchup data
@@ -142,7 +142,9 @@ class HistoricalMatchupAnalyzer:
             Dictionary with historical performance vs coach
         """
         # Create deterministic seed
-        seed = hash(f"{player_name}_{opponent_coach}_{prop_type}") % 1000
+        # Create deterministic seed based on player and coach names using consistent hash
+        coach_str = f"{player_name}_{opponent_coach}_{prop_type}_{sport}"
+        seed = sum(ord(c) * (i + 1) for i, c in enumerate(coach_str)) % 10000
         random.seed(seed)
         
         # Some coaches have specific defensive schemes that affect certain players differently
