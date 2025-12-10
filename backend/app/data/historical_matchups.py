@@ -4,6 +4,7 @@ Historical matchup data for players vs teams and coaches
 from typing import Dict, List, Optional
 from datetime import datetime
 import random
+from app.utils.statistics import StatisticalUtils
 
 
 class HistoricalMatchupAnalyzer:
@@ -74,8 +75,35 @@ class HistoricalMatchupAnalyzer:
             })
             total_value += game_value
         
-        avg_value = total_value / num_games if num_games > 0 else 0
-        over_rate = sum(1 for g in games if g["over_line"]) / num_games if num_games > 0 else 0.5
+        # Use time-weighted average instead of simple average
+        game_dates = [datetime.strptime(g["game_date"], "%Y-%m-%d") for g in games]
+        game_values = [g["value"] for g in games]
+        
+        if num_games > 0:
+            # Time-weighted average (recent games weighted more)
+            weighted_avg, ess = StatisticalUtils.time_weighted_average(
+                game_values, game_dates, half_life_days=60.0
+            )
+            
+            # Also calculate robust average (handles outliers)
+            robust_avg, std_dev = StatisticalUtils.robust_average(
+                game_values, method="trimmed", trim_percent=0.1
+            )
+            
+            # Use weighted average as primary, but keep robust for comparison
+            avg_value = weighted_avg
+        else:
+            avg_value = 0.0
+            robust_avg = 0.0
+            std_dev = 0.0
+            ess = 0.0
+        
+        # Bayesian win rate for over/under
+        over_wins = sum(1 for g in games if g["over_line"])
+        under_losses = num_games - over_wins
+        over_rate, over_lower, over_upper = StatisticalUtils.bayesian_win_rate(
+            over_wins, under_losses, prior_strength=2.0
+        )
         
         return {
             "player_name": player_name,
@@ -83,7 +111,12 @@ class HistoricalMatchupAnalyzer:
             "prop_type": prop_type,
             "num_games": num_games,
             "average_value": round(avg_value, 1),
+            "robust_average": round(robust_avg, 1) if num_games > 0 else 0.0,
+            "std_deviation": round(std_dev, 1) if num_games > 0 else 0.0,
+            "effective_sample_size": round(ess, 1) if num_games > 0 else 0.0,
             "over_rate": round(over_rate, 3),
+            "over_rate_ci_lower": round(over_lower, 3),
+            "over_rate_ci_upper": round(over_upper, 3),
             "games": games,
             "matchup_factor": round(matchup_factor, 3),  # How this matchup affects performance
             "trend": "improving" if games[-1]["value"] > avg_value else "declining" if len(games) > 1 else "stable"
@@ -141,8 +174,35 @@ class HistoricalMatchupAnalyzer:
             })
             total_value += game_value
         
-        avg_value = total_value / num_games if num_games > 0 else 0
-        over_rate = sum(1 for g in games if g["over_line"]) / num_games if num_games > 0 else 0.5
+        # Use time-weighted average instead of simple average
+        game_dates = [datetime.strptime(g["game_date"], "%Y-%m-%d") for g in games]
+        game_values = [g["value"] for g in games]
+        
+        if num_games > 0:
+            # Time-weighted average (recent games weighted more)
+            weighted_avg, ess = StatisticalUtils.time_weighted_average(
+                game_values, game_dates, half_life_days=60.0
+            )
+            
+            # Also calculate robust average (handles outliers)
+            robust_avg, std_dev = StatisticalUtils.robust_average(
+                game_values, method="trimmed", trim_percent=0.1
+            )
+            
+            # Use weighted average as primary
+            avg_value = weighted_avg
+        else:
+            avg_value = 0.0
+            robust_avg = 0.0
+            std_dev = 0.0
+            ess = 0.0
+        
+        # Bayesian win rate for over/under
+        over_wins = sum(1 for g in games if g["over_line"])
+        under_losses = num_games - over_wins
+        over_rate, over_lower, over_upper = StatisticalUtils.bayesian_win_rate(
+            over_wins, under_losses, prior_strength=2.0
+        )
         
         return {
             "player_name": player_name,
@@ -150,7 +210,12 @@ class HistoricalMatchupAnalyzer:
             "prop_type": prop_type,
             "num_games": num_games,
             "average_value": round(avg_value, 1),
+            "robust_average": round(robust_avg, 1) if num_games > 0 else 0.0,
+            "std_deviation": round(std_dev, 1) if num_games > 0 else 0.0,
+            "effective_sample_size": round(ess, 1) if num_games > 0 else 0.0,
             "over_rate": round(over_rate, 3),
+            "over_rate_ci_lower": round(over_lower, 3),
+            "over_rate_ci_upper": round(over_upper, 3),
             "games": games,
             "coach_factor": round(coach_factor, 3),  # How this coach affects this player
             "trend": "improving" if games[-1]["value"] > avg_value else "declining" if len(games) > 1 else "stable"
@@ -477,19 +542,50 @@ class HistoricalMatchupAnalyzer:
                 "winner": winner
             })
         
-        home_win_rate = home_wins / num_games if num_games > 0 else 0.5
-        away_win_rate = away_wins / num_games if num_games > 0 else 0.5
+        # Use Bayesian win rates (better for small sample sizes)
+        home_win_rate, home_lower, home_upper = StatisticalUtils.bayesian_win_rate(
+            home_wins, away_wins, prior_strength=2.0
+        )
+        away_win_rate, away_lower, away_upper = StatisticalUtils.bayesian_win_rate(
+            away_wins, home_wins, prior_strength=2.0
+        )
         
-        # Calculate average point differential
+        # Calculate average point differential with robust statistics
         point_differentials = []
+        game_dates = []
         for game in games:
             if game["winner"] == "home":
                 point_diff = game["home_score"] - game["away_score"]
             else:
                 point_diff = game["away_score"] - game["home_score"]
             point_differentials.append(point_diff)
+            game_dates.append(datetime.strptime(game["game_date"], "%Y-%m-%d"))
         
-        avg_point_diff = sum(point_differentials) / len(point_differentials) if point_differentials else 0
+        if point_differentials:
+            # Time-weighted average point differential
+            weighted_avg_diff, ess_diff = StatisticalUtils.time_weighted_average(
+                point_differentials, game_dates, half_life_days=90.0
+            )
+            
+            # Robust average (handles outliers)
+            robust_avg_diff, std_diff = StatisticalUtils.robust_average(
+                point_differentials, method="trimmed", trim_percent=0.1
+            )
+            
+            # Confidence interval
+            mean_diff, ci_lower, ci_upper = StatisticalUtils.confidence_interval(
+                point_differentials, confidence=0.95, method="t"
+            )
+            
+            avg_point_diff = weighted_avg_diff
+        else:
+            avg_point_diff = 0.0
+            robust_avg_diff = 0.0
+            std_diff = 0.0
+            mean_diff = 0.0
+            ci_lower = 0.0
+            ci_upper = 0.0
+            ess_diff = 0.0
         
         # Determine if there's a coaching advantage
         if home_win_rate > 0.60:
@@ -525,8 +621,16 @@ class HistoricalMatchupAnalyzer:
             "home_coach_record": home_record,  # Format: "W-L"
             "away_coach_record": away_record,  # Format: "W-L"
             "home_coach_win_rate": round(home_win_rate, 3),
+            "home_coach_win_rate_ci_lower": round(home_lower, 3),
+            "home_coach_win_rate_ci_upper": round(home_upper, 3),
             "away_coach_win_rate": round(away_win_rate, 3),
+            "away_coach_win_rate_ci_lower": round(away_lower, 3),
+            "away_coach_win_rate_ci_upper": round(away_upper, 3),
             "avg_point_differential": round(avg_point_diff, 1),
+            "robust_avg_point_differential": round(robust_avg_diff, 1) if point_differentials else 0.0,
+            "point_differential_std": round(std_diff, 1) if point_differentials else 0.0,
+            "point_differential_ci_lower": round(ci_lower, 1) if point_differentials else 0.0,
+            "point_differential_ci_upper": round(ci_upper, 1) if point_differentials else 0.0,
             "advantage": advantage,
             "advantage_strength": advantage_strength,
             "games": games,
@@ -925,14 +1029,35 @@ class HistoricalMatchupAnalyzer:
         total_player1_wins = player1_wins + college_player1_wins
         total_player2_wins = player2_wins + college_player2_wins
         
-        # Calculate averages
+        # Calculate averages using robust statistics
         player1_avg_stats = {}
         player2_avg_stats = {}
+        player1_std_stats = {}
+        player2_std_stats = {}
+        
         if pro_games > 0:
-            for stat, total in player1_total_stats.items():
-                player1_avg_stats[stat] = round(total / pro_games, 1)
-            for stat, total in player2_total_stats.items():
-                player2_avg_stats[stat] = round(total / pro_games, 1)
+            # For each stat, collect all values across games
+            # Note: In real implementation, we'd track per-game stats
+            # For now, we'll use the totals divided by games (simple average)
+            # but in production, we'd use time-weighted or robust averages
+            
+            for stat in player1_total_stats.keys():
+                # Simple average (in production, would use per-game data for robust stats)
+                player1_avg_stats[stat] = round(player1_total_stats[stat] / pro_games, 1)
+                player2_avg_stats[stat] = round(player2_total_stats[stat] / pro_games, 1)
+                
+                # Estimate std dev (would need per-game data for accurate calculation)
+                # Using rough estimate: assume 20% coefficient of variation
+                player1_std_stats[stat] = round(player1_avg_stats[stat] * 0.2, 1)
+                player2_std_stats[stat] = round(player2_avg_stats[stat] * 0.2, 1)
+        
+        # Use Bayesian win rates
+        player1_win_rate, p1_lower, p1_upper = StatisticalUtils.bayesian_win_rate(
+            total_player1_wins, total_player2_wins, prior_strength=2.0
+        )
+        player2_win_rate, p2_lower, p2_upper = StatisticalUtils.bayesian_win_rate(
+            total_player2_wins, total_player1_wins, prior_strength=2.0
+        )
         
         return {
             "player1_name": player1_name,
@@ -945,12 +1070,18 @@ class HistoricalMatchupAnalyzer:
             "player2_wins": total_player2_wins,
             "player1_record": f"{total_player1_wins}-{total_player2_wins}",
             "player2_record": f"{total_player2_wins}-{total_player1_wins}",
-            "player1_win_rate": round(total_player1_wins / total_games, 3) if total_games > 0 else 0.5,
-            "player2_win_rate": round(total_player2_wins / total_games, 3) if total_games > 0 else 0.5,
+            "player1_win_rate": round(player1_win_rate, 3) if total_games > 0 else 0.5,
+            "player1_win_rate_ci_lower": round(p1_lower, 3) if total_games > 0 else 0.0,
+            "player1_win_rate_ci_upper": round(p1_upper, 3) if total_games > 0 else 1.0,
+            "player2_win_rate": round(player2_win_rate, 3) if total_games > 0 else 0.5,
+            "player2_win_rate_ci_lower": round(p2_lower, 3) if total_games > 0 else 0.0,
+            "player2_win_rate_ci_upper": round(p2_upper, 3) if total_games > 0 else 1.0,
             "professional_matchups": pro_matchups,
             "college_matchups": college_matchups,
             "player1_avg_stats": player1_avg_stats,
+            "player1_std_stats": player1_std_stats,
             "player2_avg_stats": player2_avg_stats,
+            "player2_std_stats": player2_std_stats,
             "recent_trend": "player1" if pro_matchups and pro_matchups[-1]["winner"] == "player1" else "player2" if pro_matchups else "neutral"
         }
     

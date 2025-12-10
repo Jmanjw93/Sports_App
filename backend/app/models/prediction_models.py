@@ -7,6 +7,7 @@ import numpy as np
 import random
 from datetime import datetime
 from app.models.injury_analyzer import InjuryAnalyzer, TeamInjuryImpact
+from app.utils.statistics import StatisticalUtils
 
 
 @dataclass
@@ -80,10 +81,18 @@ class GamePredictor:
         # Apply home advantage
         home_strength += self.home_advantage
         
-        # Calculate base probabilities
+        # Calculate base probabilities using proper normalization
+        # Convert strengths to log-odds, then to probabilities
         total_strength = home_strength + away_strength
-        home_prob = home_strength / total_strength if total_strength > 0 else 0.5
-        away_prob = 1 - home_prob
+        if total_strength > 0:
+            # Use softmax-like normalization for better numerical stability
+            home_prob = StatisticalUtils.normalize_probabilities(
+                {"home": home_strength, "away": away_strength},
+                method="softmax"
+            )["home"]
+        else:
+            home_prob = 0.5
+        away_prob = 1.0 - home_prob
         
         # Adjust for weather if outdoor sport (NFL, MLB)
         weather_impact = None
@@ -107,9 +116,13 @@ class GamePredictor:
                 home_team, away_team, sport
             )
             
-            # Apply coaching adjustment
+            # Apply coaching adjustment using log-odds (more statistically sound)
             coaching_adjustment = coaching_matchup.get("adjustment_factor", 0.0)
-            home_prob += coaching_adjustment
+            
+            # Convert to log-odds, add adjustment, convert back
+            home_log_odds = StatisticalUtils.probability_to_log_odds(home_prob)
+            home_log_odds += coaching_adjustment * 2.0  # Scale adjustment for log-odds space
+            home_prob = StatisticalUtils.log_odds_to_probability(home_log_odds)
             away_prob = 1.0 - home_prob
             
             # Ensure probabilities stay in valid range
@@ -173,8 +186,10 @@ class GamePredictor:
                 away_mental_health.impact_on_win_probability
             )
             
-            # Apply adjustment to probabilities
-            home_prob += net_mental_health_adjustment
+            # Apply adjustment to probabilities using log-odds
+            home_log_odds = StatisticalUtils.probability_to_log_odds(home_prob)
+            home_log_odds += net_mental_health_adjustment * 2.0  # Scale for log-odds space
+            home_prob = StatisticalUtils.log_odds_to_probability(home_log_odds)
             away_prob = 1.0 - home_prob
             
             # Ensure probabilities stay in valid range
@@ -291,11 +306,16 @@ class GamePredictor:
             }
         
         # Determine winner
-        # Ensure probabilities sum to 1.0 (normalize if needed)
+        # Ensure probabilities sum to 1.0 using proper normalization
         total_prob = home_prob + away_prob
         if abs(total_prob - 1.0) > 0.01:  # Allow small floating point differences
-            home_prob = home_prob / total_prob
-            away_prob = 1.0 - home_prob
+            # Use proper normalization (softmax)
+            normalized = StatisticalUtils.normalize_probabilities(
+                {"home": home_prob, "away": away_prob},
+                method="softmax"
+            )
+            home_prob = normalized["home"]
+            away_prob = normalized["away"]
         
         # Determine predicted winner based on higher probability
         if home_prob > away_prob:
