@@ -737,28 +737,28 @@ export default function GameCard({ game }: { game: Game }) {
       )}
 
       <div className="flex gap-2 mt-4">
-        <button
-          onClick={fetchPrediction}
-          disabled={loading}
+      <button
+        onClick={fetchPrediction}
+        disabled={loading}
           className="flex-1 bg-gradient-to-r from-warm-500 to-amber-500 hover:from-sky-600 hover:to-mint-600 text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-sky-400/50"
-        >
-          {loading ? (
-            <>
-              <Loader2 className="animate-spin" size={16} />
-              Loading prediction...
-            </>
-          ) : expanded ? (
-            <>
-              <ChevronUp size={16} />
-              Hide Prediction
-            </>
-          ) : (
-            <>
-              <TrendingUp size={16} />
-              View Prediction
-            </>
-          )}
-        </button>
+      >
+        {loading ? (
+          <>
+            <Loader2 className="animate-spin" size={16} />
+            Loading prediction...
+          </>
+        ) : expanded ? (
+          <>
+            <ChevronUp size={16} />
+            Hide Prediction
+          </>
+        ) : (
+          <>
+            <TrendingUp size={16} />
+            View Prediction
+          </>
+        )}
+      </button>
         
         {prediction && !isLocked && (
           <button
