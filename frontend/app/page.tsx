@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react'
 import GameList from '@/components/GameList'
 import BestBets from '@/components/BestBets'
+import LockedPredictions from '@/components/LockedPredictions'
 import Header from '@/components/Header'
-import { TrendingUp, Target, BarChart3 } from 'lucide-react'
+import { TrendingUp, Target, BarChart3, Lock } from 'lucide-react'
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'games' | 'bets' | 'player-bets'>('games')
+  const [activeTab, setActiveTab] = useState<'games' | 'bets' | 'player-bets' | 'locked'>('games')
   const [sport, setSport] = useState('nfl')
 
   return (
@@ -50,6 +51,17 @@ export default function Home() {
             <Target size={20} />
             <span>Player Props</span>
           </button>
+          <button
+            onClick={() => setActiveTab('locked')}
+            className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-all ${
+              activeTab === 'locked'
+                ? 'bg-primary-600 text-white shadow-lg'
+                : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+            }`}
+          >
+            <Lock size={20} />
+            <span>Locked Predictions</span>
+          </button>
         </div>
 
         {/* Content */}
@@ -62,6 +74,7 @@ export default function Home() {
               <p className="text-slate-400">Select a game to view player prop recommendations</p>
             </div>
           )}
+          {activeTab === 'locked' && <LockedPredictions />}
         </div>
       </div>
     </main>
