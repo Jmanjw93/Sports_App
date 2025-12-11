@@ -1,8 +1,10 @@
 """
 Configuration settings for the application
 """
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
+from pydantic import field_validator
+import json
 
 
 class Settings(BaseSettings):
@@ -31,9 +33,23 @@ class Settings(BaseSettings):
     DRAFTKINGS_ENABLED: bool = True
     THESCORE_BET_ENABLED: bool = True
     
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
+    @field_validator('CORS_ORIGINS', mode='before')
+    @classmethod
+    def parse_cors_origins(cls, v):
+        if isinstance(v, str):
+            # Try to parse as JSON first
+            try:
+                return json.loads(v)
+            except json.JSONDecodeError:
+                # Fall back to comma-separated string
+                return [origin.strip() for origin in v.split(',') if origin.strip()]
+        return v
+    
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=True,
+        extra="ignore"
+    )
 
 
 settings = Settings()
