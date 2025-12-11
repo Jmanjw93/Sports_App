@@ -2,9 +2,10 @@
 Configuration settings for the application
 """
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import List
-from pydantic import field_validator
+from typing import List, Union
+from pydantic import field_validator, Field
 import json
+import os
 
 
 class Settings(BaseSettings):
@@ -25,8 +26,10 @@ class Settings(BaseSettings):
     API_HOST: str = "0.0.0.0"
     API_PORT: int = 8000
     
-    # CORS
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:3001"]
+    # CORS - Use Union to handle both string and list from env
+    CORS_ORIGINS: Union[str, List[str]] = Field(
+        default=["http://localhost:3000", "http://localhost:3001"]
+    )
     
     # Betting Platforms
     BET365_ENABLED: bool = True
@@ -36,19 +39,47 @@ class Settings(BaseSettings):
     @field_validator('CORS_ORIGINS', mode='before')
     @classmethod
     def parse_cors_origins(cls, v):
+        # If already a list, return as-is
+        if isinstance(v, list):
+            return v
+        
+        # If it's a string, try to parse it
         if isinstance(v, str):
+            # Remove any quotes
+            v = v.strip().strip('"').strip("'")
+            
             # Try to parse as JSON first
             try:
-                return json.loads(v)
-            except json.JSONDecodeError:
-                # Fall back to comma-separated string
+                parsed = json.loads(v)
+                if isinstance(parsed, list):
+                    return parsed
+            except (json.JSONDecodeError, ValueError):
+                pass
+            
+            # Fall back to comma-separated string
+            if ',' in v:
                 return [origin.strip() for origin in v.split(',') if origin.strip()]
-        return v
+            elif v:
+                # Single value
+                return [v.strip()]
+        
+        # Default fallback
+        return ["http://localhost:3000", "http://localhost:3001"]
+    
+    @property
+    def cors_origins_list(self) -> List[str]:
+        """Get CORS origins as a list, handling both string and list formats"""
+        if isinstance(self.CORS_ORIGINS, list):
+            return self.CORS_ORIGINS
+        elif isinstance(self.CORS_ORIGINS, str):
+            return self.parse_cors_origins(self.CORS_ORIGINS)
+        return ["http://localhost:3000", "http://localhost:3001"]
     
     model_config = SettingsConfigDict(
         env_file=".env",
         case_sensitive=True,
-        extra="ignore"
+        extra="ignore",
+        env_ignore_empty=True
     )
 
 
