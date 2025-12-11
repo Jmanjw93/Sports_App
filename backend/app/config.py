@@ -13,37 +13,27 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "sqlite:///./sports_analytics.db"
     
+    # Redis
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+    REDIS_DB: int = 0
+    REDIS_TTL: int = 300  # Default cache TTL in seconds
+    
     # Server
     API_HOST: str = "0.0.0.0"
     API_PORT: int = 8000
     
-    # CORS - Can be comma-separated string or list
-    # In production, this should be set via environment variable
-    # Default allows localhost for development
-    # Use "*" to allow all origins (for testing/debugging)
-    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
+    # CORS
+    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:3001"]
     
     # Betting Platforms
     BET365_ENABLED: bool = True
     DRAFTKINGS_ENABLED: bool = True
     THESCORE_BET_ENABLED: bool = True
     
-    @property
-    def cors_origins_list(self) -> List[str]:
-        """Convert CORS_ORIGINS string to list"""
-        if isinstance(self.CORS_ORIGINS, str):
-            origins = [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
-            # If "*" is in the list, return ["*"] to allow all origins
-            if "*" in origins:
-                return ["*"]
-            return origins
-        return self.CORS_ORIGINS
-    
     class Config:
-        env_file = "../.env"  # Look for .env in project root
-        env_file_encoding = "utf-8"
+        env_file = ".env"
         case_sensitive = True
-        extra = "ignore"  # Ignore extra fields in .env
 
 
 settings = Settings()

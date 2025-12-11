@@ -3,10 +3,8 @@ Main FastAPI application for Sports Analytics & Betting Predictions
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
-from starlette.responses import Response
-import re
+from app.routers import games, predictions, odds, bets
+from app.config import settings
 
 app = FastAPI(
     title="Sports Analytics API",
@@ -14,71 +12,64 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Allowed frontends - includes production and preview Vercel URLs
-# Vercel preview deployments have dynamic URLs, so we use a custom middleware
-allowed_origins = [
-    "https://sports-app-taupe.vercel.app",  # Vercel production
-    "https://sports-app-git-main-jmanjw93s-projects.vercel.app",  # Vercel production branch
-    "https://sports-7t1fi3av-jmanjw93s-projects.vercel.app",  # Vercel preview
-    "https://sports-2rrf7xil8-jmanjw93s-projects.vercel.app",  # Vercel preview
-    "http://localhost:3000",  # local dev
-    "http://localhost:3001",  # local dev
-]
+# Try to initialize database (optional)
+try:
+    from app.database import init_db
+    init_db()
+except Exception as e:
+    print(f"Database initialization skipped: {e}")
 
-def is_allowed_origin(origin: str) -> bool:
-    """Check if origin is allowed, including any Vercel preview deployment"""
-    if not origin:
-        return False
-    # Allow localhost for development
-    if origin.startswith("http://localhost"):
-        return True
-    # Allow any Vercel deployment (production or preview) - matches *.vercel.app
-    if re.match(r"^https://.*\.vercel\.app$", origin):
-        return True
-    # Check explicit allowed origins
-    return origin in allowed_origins
+# Try to initialize Redis cache (optional)
+try:
+    from app.cache.redis_cache import get_cache
+    cache = get_cache()
+    if cache.enabled:
+        try:
+            from app.monitoring.prometheus_metrics import set_redis_status
+            set_redis_status(True)
+        except:
+            pass
+except Exception as e:
+    print(f"Redis cache initialization skipped: {e}")
 
-# Custom CORS middleware that supports pattern matching for Vercel preview URLs
-class FlexibleCORSMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        origin = request.headers.get("origin")
-        
-        # Handle preflight OPTIONS requests
-        if request.method == "OPTIONS":
-            response = Response()
-            if origin and is_allowed_origin(origin):
-                response.headers["Access-Control-Allow-Origin"] = origin
-                response.headers["Access-Control-Allow-Credentials"] = "true"
-                response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
-                response.headers["Access-Control-Allow-Headers"] = "*"
-                response.headers["Access-Control-Max-Age"] = "3600"
-            return response
-        
-        # Handle actual requests
-        response = await call_next(request)
-        
-        if origin and is_allowed_origin(origin):
-            response.headers["Access-Control-Allow-Origin"] = origin
-            response.headers["Access-Control-Allow-Credentials"] = "true"
-        
-        return response
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# Add the custom CORS middleware
-app.add_middleware(FlexibleCORSMiddleware)
-
-# make sure this is ABOVE your router includes
-from app.routers import games, predictions, odds, bets, player_props, simulations, parlays, learning, player_comparison
+# Metrics middleware (optional, must be after CORS)
+try:
+    from app.monitoring.middleware import MetricsMiddleware
+    app.add_middleware(MetricsMiddleware)
+except Exception as e:
+    print(f"Metrics middleware skipped: {e}")
 
 # Include routers
 app.include_router(games.router, prefix="/api/games", tags=["games"])
 app.include_router(predictions.router, prefix="/api/predictions", tags=["predictions"])
 app.include_router(odds.router, prefix="/api/odds", tags=["odds"])
 app.include_router(bets.router, prefix="/api/bets", tags=["bets"])
-app.include_router(player_props.router, prefix="/api/player-props", tags=["player-props"])
-app.include_router(simulations.router, prefix="/api/simulations", tags=["simulations"])
-app.include_router(parlays.router, prefix="/api/parlays", tags=["parlays"])
-app.include_router(learning.router, prefix="/api/learning", tags=["learning"])
-app.include_router(player_comparison.router, prefix="/api/player-comparison", tags=["player-comparison"])
+
+# ML predictions router (optional)
+try:
+    from app.routers import ml_predictions
+    app.include_router(ml_predictions.router, prefix="/api/ml-predictions", tags=["ml-predictions"])
+except Exception as e:
+    print(f"ML predictions router skipped: {e}")
+
+# Prometheus metrics endpoint (optional)
+try:
+    from app.monitoring.prometheus_metrics import metrics_response
+    @app.get("/metrics")
+    async def metrics():
+        """Prometheus metrics endpoint"""
+        return metrics_response()
+except Exception as e:
+    print(f"Metrics endpoint skipped: {e}")
 
 
 @app.get("/")
@@ -98,3 +89,4 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
